@@ -1,0 +1,19 @@
+# Script 2.7 - .htaccess
+<IfModule mod_rewrite.c>
+# Turn on the engine:
+    RewriteEngine On
+
+# Set the base to this directory:
+RewriteBase /eoi_moodle/
+
+# Redirect certain paths to index.php:
+    # RewriteRule ^(main|a1|a2|b1|b2|a1_situationen|a1_wortschatz)/?$ index.php?p=$1
+    # \w indicates any word character (letter, number, underscore)    
+    RewriteRule ^(a1|a2|b1|b2)/(\w*)/(\w*)/(\w*)/?$ index.php?d=$1&f=$2&g=$3&p=$4 [NC,L]
+   	RewriteRule ^(a1|a2|b1|b2)/(\w*)/(\w*)/?$ index.php?d=$1&f=$2&p=$3 [NC,L]
+   	RewriteRule ^(a1|a2|b1|b2)/(\w*)/?$ index.php?d=$1&p=$2 [NC,L]
+    RewriteRule ^(\w*)/?$ index.php?p=$1 [NC,L]
+    RewriteCond %{REQUEST_FILENAME} !-f  
+		RewriteCond %{REQUEST_FILENAME} !-d  
+		RewriteRule .? /eoi_moodle/404.php [L]
+</IfModule>

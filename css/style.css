@@ -1,0 +1,328 @@
+#navbar {
+  background-color: #d10002;
+  color: #eee;
+  width: 100%;
+  max-width: 100%;
+  height: 70px; }
+
+.grey {
+  background-color: #f2f2f2;
+  box-shadow: 3px 3px 10px #888888;
+  min-height: 380px; }
+
+/*# sourceMappingURL=style.css.map */
+
+.scll {
+  width: 100%;
+  height: 500px;
+  overflow-y: scroll;
+  scrollbar-color: lightgrey darkgrey;
+  scrollbar-width: thin;
+}
+#brd {
+  border: 2px solid darkgrey;
+  box-shadow: 5px -5px 4px silver;
+  padding: 5px;
+}
+
+.red {
+  color: #f00;
+}
+.green {
+  color: #008000;
+}
+.orange {
+  color: #FFA200;
+}
+.blue {
+  color: #13105C;
+}
+.pink{
+  color: #B10068;
+}
+.big {
+  font-size: 130%;  
+}
+
+/* definition grid for Berufe-Memory */
+
+.grid_frame {
+  position: relative;
+  background-color: white;
+  width: 60vw;
+  min-width: 300px;
+ /* min-height: 300px; */
+  overflow: hidden;
+  border: 12px solid #6D5720;
+  border-radius: 12px;
+}
+
+#grid_container {
+  display: grid;  
+  width: 100%;
+  height: 100%;
+  grid-template-columns: 20% 20% 20% 20% 20%;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  grid-gap: 2px; 
+}
+
+
+#grid-container > div {
+  background-color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  padding: 20px 0;
+  font-size: 30px;
+}
+
+#grid_container > div {
+  align-self: center;
+  font-size: 130%;
+}
+
+#grid_container img {
+  width: 80%;
+  height: auto; 
+  margin: 2px;
+}
+
+#grid_container .item_back {
+  font-size: 120%;
+}
+
+.item1 {
+  grid-area: 1 / 1 / 2 / 2;
+}
+
+.item2 {
+  grid-area: 1 / 2 / 2 / 3;
+}
+
+.item3 {
+  grid-area: 1 / 3 / 2 / 4;
+}
+
+.item4 {
+  grid-area: 1 / 4 / 2 / 5;
+}
+
+.item5 {
+  grid-area: 1 / 5 / 2 / 6;
+}
+
+.item6 {
+  grid-area: 2 / 1 / 3 / 2; 
+}
+
+.item7 {
+  grid-area: 2 / 2 / 3 / 3;
+}
+
+.item8 {
+  grid-area: 2 / 3 / 3 / 4;
+}
+
+.item9 {
+  grid-area: 2 / 4 / 3 / 5;
+}
+
+.item10 {
+  grid-area: 2 / 5 / 3 / 6;
+}
+
+.item11 {
+  grid-area: 3 / 1 / 4 / 2; 
+}
+
+.item12 {
+  grid-area: 3 / 2 / 4 / 3;
+}
+
+.item13 {
+  grid-area: 3 / 3 / 4 / 4;
+}
+
+.item14 {
+  grid-area: 3 / 4 / 4 / 5;
+}
+
+.item15 {
+  grid-area: 3 / 5 / 4 / 6;
+}
+
+.item16 {
+  grid-area: 4 / 1 / 5 / 2; 
+}
+
+.item17 {
+  grid-area: 4 / 2 / 5 / 3;
+}
+
+.item18 {
+  grid-area: 4 / 3 / 5 / 4;
+}
+
+.item19 {
+  grid-area: 4 / 4 / 5 / 5;
+}
+
+.item20 {
+  grid-area: 4 / 5 / 5 / 6;
+}
+
+.front_item { 
+  background-color: #2e4969;
+  visibility: visible;
+  height: 100%;
+  z-index: 2;
+}
+
+/* END definition grid for Berufe-Memory */
+
+/* MEDIA QUERIES */
+
+@media (max-width: 1200px) {
+  .grid li {
+    width: 100%;
+  }
+}
+
+
+@media (max-width: 992px) {
+  .flip-container {
+    width: 90%;
+    /* height: 150px; */
+    margin-bottom: 68%;
+  }
+  .large {
+    font-size: 20px;
+  }
+  .slarge {
+    font-size: 18px;
+  }
+  .content {
+    min-height: 370px;
+  }
+  .grid li {
+    width: 100%;
+  }
+  .medium {
+    font-size: 16px;
+  }
+  caption {
+    font-size: 24px;
+  }
+  #dvDest {
+    height: 90px;
+  }
+  #dvDest img {
+    width: 16%;
+    height: auto;
+  }
+  .tab-content > .active {
+    height: 190px;
+  }
+  #grid_container div {
+    font-size: 85%;
+  }
+}
+
+
+@media (max-width: 767px) {
+  .flip-container {
+    width: 75%;
+    height: 150px;
+    margin-bottom: 35%;
+  }
+  .my_form .row {
+    font-size: 80%;
+  }
+  .medium{
+    font-size: 14px;
+  }
+  #subnavi a {
+    margin: 0 5%;
+  }
+  caption {
+    font-size: 20px;
+  }
+  .table-fill th {
+    font-size: 18px;
+  }
+  .table-fill td {
+    font-size: 14px;
+  }
+  .table-fill th.small {
+    font-size: 16px;
+  }
+  .form-inline .form-control {
+    display: inline-block;
+    vertical-align: middle;
+    width: auto;
+  }
+  .grid_frame {
+    width: 100vw;
+  }
+  #grid_container div {
+    font-size: 130%;
+  }
+}
+
+
+
+@media (max-width: 475px) {
+  .logo {
+    font-size: 22px;
+  }
+  .grid {
+    padding: 0;
+  }
+  .flip-container {
+    margin-bottom: 25%;
+  }
+  .einstufung.large, .grammatik.large, .large {
+    font-size: 16px;
+  }
+  .slarge {
+    font-size: 14px;
+  }
+  .my_form .row {
+    font-size: 70%;
+  }
+  #dvDest img {
+    width: 20%;   
+  }
+  #dvDest {
+    height: 72px;
+  }
+  #grid_container div {
+    font-size: 85%;
+  }
+}
+
+
+@media screen and (max-width: 31.5em) {
+  .grid {
+    padding: 10px 10px 100px 10px;
+  }
+  .grid li {
+    width: 100%;
+    min-width: 300px;
+  }
+}
+
+
+@media (min-width: 992px) {
+  .grid {
+    margin: 58px auto;
+    list-style: none;
+    text-align: center;
+    line-height: 1.4; 
+  }
+  .show_img img {
+    max-width: 150px;
+    height: 110px;
+    margin: 5px 5px;
+  }  
+}
+
+/* END MEDIA QUERIES S*/
