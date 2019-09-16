@@ -28,6 +28,10 @@ switch ($p) {
     $page = 'memory.inc.php';
     $page_title = "Constructing a Memory Game";
     break;
+  case 'leseverstehen':
+    $page = 'leseverstehen.inc.php';
+    $page_title = "Leseverstehen mit Übungsteil";
+    break;
   case 'read':
     $page = 'readFile.inc.php';
     $page_title = 'Reading the File';
@@ -35,10 +39,6 @@ switch ($p) {
 	case 'testAddFile':
 		$page = "test_addFileClass.php";
 		$page_title = "Test AddFile";
-		break;
-	case 'Wohnung':
-		$page = "al/B21/Wortschatz/Wohnung/Wohnung.inc.php";
-		$page_title = "$head_title - Memoryspiel - Wohnung";
 		break;
   default:
     $page = 'main.inc.php';
