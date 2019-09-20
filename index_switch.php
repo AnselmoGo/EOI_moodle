@@ -40,6 +40,10 @@ switch ($p) {
 		$page = "test_addFileClass.php";
 		$page_title = "Test AddFile";
 		break;
+	case 'haus':
+		$page = "al/A21/Situationen/haus/haus.inc.php";
+		$page_title = "$head_title - Memoryspiel - Haus";
+		break;
   default:
     $page = 'main.inc.php';
     $page_title = 'Acceso - Página principal';
