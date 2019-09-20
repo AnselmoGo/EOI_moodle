@@ -4,7 +4,7 @@
     RewriteEngine On
 
 # Set the base to this directory:
-RewriteBase /eoi_moodle/
+RewriteBase /EOIMoodle/eoi_moodle/
 
 # Redirect certain paths to index.php:
     # RewriteRule ^(main|a1|a2|b1|b2|a1_situationen|a1_wortschatz)/?$ index.php?p=$1

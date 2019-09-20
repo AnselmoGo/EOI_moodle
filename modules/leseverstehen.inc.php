@@ -12,7 +12,7 @@
 		<div class="justify-content-center mt-3 col-4">
 			<h2>Lückentext</h2>
 		</div>
-		<div class="justify-content-center mt-3 col-10">
+		<div class="justify-content-center mt-3 mb-5 col-10">
 			In diesem Text musst du entscheiden welches von den Wörtern in den Kästen zu dem Satz passt. Viel Glück!!
 			<br />
 			Vorsicht, es gibt 5 Wörter zu viel!!
@@ -21,10 +21,11 @@
 
 <?php
 	$table = 'lv_select';
+	$tsbId = 1;
 
-	$exercise_builder = new build_Text($table);
+	$text_builder = new build_Text($table);
+	$text_builder->set_TbsId($tsbId);
+	$text = $text_builder->get_Text($mysqli);
+	echo $text;
 
-	// items that will be selected in the DB
-	$selection[] = 'solution';
-	$selection[] = 'exercise';
 ?>
