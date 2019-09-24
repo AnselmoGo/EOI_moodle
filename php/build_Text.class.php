@@ -51,7 +51,7 @@ class Build_Text {
 
 
 	private function build_Select($mysqli) {
-		$this->_select = "<select>";
+		$this->_select = "<select class='form-control-sm'>";
 		$this->_select .= "<option>- ??? -</option>";
 
 		$result = $mysqli->query("SELECT solution FROM $this->_table WHERE gap != $this->_num_gap AND gap != $this->_num_img");
