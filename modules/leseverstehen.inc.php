@@ -18,7 +18,7 @@
 			Vorsicht, es gibt 5 Wörter zu viel!!
 		</div>
 	</div>
-	
+	<hr>
 	<div class="row justify-content-center">
 		<div class="my-3 col-10 line_high">							
 			<?php
