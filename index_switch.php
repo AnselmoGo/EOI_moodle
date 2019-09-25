@@ -32,6 +32,10 @@ switch ($p) {
     $page = 'leseverstehen.inc.php';
     $page_title = "Leseverstehen mit Übungsteil";
     break;
+  case 'createlv':
+    $page = 'createLV.inc.php';
+    $page_title = "Erstellen einer Leseverstehensseite";
+    break;
   case 'read':
     $page = 'readFile.inc.php';
     $page_title = 'Reading the File';
