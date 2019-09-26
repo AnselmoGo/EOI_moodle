@@ -18,7 +18,7 @@
 	</div>
 	<hr>
 	<div class="row buttons">
-		<div class="col-8 offset-sm-1">			
+		<div class="col-3 offset-sm-1">			
 			<button type="button" class="btn btn-default glyphs" onclick="execCmd('bold')">
 				<span class="glyphicon glyphicon-bold"></span>
 			</button>
@@ -28,7 +28,8 @@
 			<button type="button" class="btn btn-default glyphs" onclick="execCmd('underline')">
 				<span class="glyphicon glyphicon-text-color"></span>
 			</button>
-
+		</div>
+		<div class="col-4">
 			<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyLeft')">
 				<span class="glyphicon glyphicon-align-left"></span>
 			</button>
