@@ -13,18 +13,40 @@
 			<h1>Erstelle eine Leseverstehensseite</h1>
 		</div>
 		<div class="center mt-3 mb-5 col-10">
-			In dieser Seite hast du die Möglichkeit, einen Text zu schreiben oder ihn als .txt Datei hochzuladen, um aus ihm dann eine Leseverstehensübung zu erstellen. Viel Spa bei der Arbeit.
-			<br />
-			Vorsicht, es gibt 5 Wörter zu viel!!
+			In dieser Seite hast du die Möglichkeit, einen Text zu schreiben oder ihn als .txt Datei hochzuladen, um aus ihm dann eine Leseverstehensübung zu erstellen. Viel Spaß bei der Arbeit.			
 		</div>
 	</div>
 	<hr>
 	<div class="row buttons">
-		<!--SHOULD GET THE GLYPHICONS FROM BOOTSTRAP HERE -->
-		<button onclick="exeBold()"><i class="fas fa-bold"></i></button>  
+		<div class="col-8 offset-sm-1">			
+			<button type="button" class="btn btn-default glyphs" onclick="execCmd('bold')">
+				<span class="glyphicon glyphicon-bold"></span>
+			</button>
+			<button type="button" class="btn btn-default glyphs" onclick="execCmd('italic')">
+				<span class="glyphicon glyphicon-italic"></span>
+			</button>
+			<button type="button" class="btn btn-default glyphs" onclick="execCmd('underline')">
+				<span class="glyphicon glyphicon-text-color"></span>
+			</button>
+
+			<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyLeft')">
+				<span class="glyphicon glyphicon-align-left"></span>
+			</button>
+			<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyCenter')">
+				<span class="glyphicon glyphicon-align-center"></span>
+			</button>
+			<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyRight')">
+				<span class="glyphicon glyphicon-align-right"></span>
+			</button>
+			<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyFull')">
+				<span class="glyphicon glyphicon-align-justify"></span>
+			</button>
+		</div> 
 	</div>
-	<div class="row justify-content-center">
-		<iframe name="richTextField" class="richTF" src="" frameborder="0" onload="enableEditMode();alert('Done');" style="width: 1000px; height: 400px;"></iframe>
+	<div class="row">
+		<div class="col-10 offset-sm-1">
+			<iframe name="richTextField" class="richTF" src="" onload="enableEditMode();"></iframe>
+		</div>
 	</div>
 
 	<script>
@@ -32,7 +54,8 @@
 			richTextField.document.designMode = 'On';
 		}
 
-		function exeBold() {
-			richTextField.document.execCommand('bold');
+		function execCmd(command) {
+			richTextField.document.execCommand(command, false, null);
 		}
+
 	</script>
