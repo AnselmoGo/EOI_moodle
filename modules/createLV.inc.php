@@ -17,38 +17,58 @@
 		</div>
 	</div>
 	<hr>
-	<div class="row buttons">
-		<div class="col-3 offset-sm-1">			
-			<button type="button" class="btn btn-default glyphs" onclick="execCmd('bold')">
-				<span class="glyphicon glyphicon-bold"></span>
-			</button>
-			<button type="button" class="btn btn-default glyphs" onclick="execCmd('italic')">
-				<span class="glyphicon glyphicon-italic"></span>
-			</button>
-			<button type="button" class="btn btn-default glyphs" onclick="execCmd('underline')">
-				<span class="glyphicon glyphicon-text-color"></span>
-			</button>
+	<form name="form" id="myForm" method="post" action="<?php BASE_URL . $_SERVER['PHP_SELF'] ?>" enctype="multipart/form-data">
+		<div class="row buttons">
+			<div class="col-3 offset-sm-1">			
+				<button type="button" class="btn btn-default glyphs" onclick="execCmd('bold')">
+					<span class="glyphicon glyphicon-bold"></span>
+				</button>
+				<button type="button" class="btn btn-default glyphs" onclick="execCmd('italic')">
+					<span class="glyphicon glyphicon-italic"></span>
+				</button>
+				<button type="button" class="btn btn-default glyphs" onclick="execCmd('underline')">
+					<span class="glyphicon glyphicon-text-color"></span>
+				</button>
+			</div>
+			<div class="col-4">
+				<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyLeft')">
+					<span class="glyphicon glyphicon-align-left"></span>
+				</button>
+				<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyCenter')">
+					<span class="glyphicon glyphicon-align-center"></span>
+				</button>
+				<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyRight')">
+					<span class="glyphicon glyphicon-align-right"></span>
+				</button>
+				<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyFull')">
+					<span class="glyphicon glyphicon-align-justify"></span>
+				</button>
+			</div> 
 		</div>
-		<div class="col-4">
-			<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyLeft')">
-				<span class="glyphicon glyphicon-align-left"></span>
-			</button>
-			<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyCenter')">
-				<span class="glyphicon glyphicon-align-center"></span>
-			</button>
-			<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyRight')">
-				<span class="glyphicon glyphicon-align-right"></span>
-			</button>
-			<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyFull')">
-				<span class="glyphicon glyphicon-align-justify"></span>
-			</button>
-		</div> 
-	</div>
-	<div class="row">
-		<div class="col-10 offset-sm-1">
-			<iframe name="richTextField" class="richTF" src="" onload="enableEditMode();"></iframe>
+		<div class="row">
+			<div class="col-10 offset-1">
+				<iframe name='ricextField' class='rchTF' src='' onload='enableEditMode();'></iframe>
+				<?php
+					if (isset($_POST["build_memory"])) {
+						$data = file_get_contents($_FILES["userFile"]["tmp_name"]);
+						echo "<textarea name='richTextField'>".htmlspecialchars($data)."</textarea>";
+						//echo "<iframe name='richTextField' class='richTF' src='/EOI_moodle/modules/Lorem_ipsum.txt' onload='enableEditMode();'></iframe>";
+					} else {
+						echo "<iframe name='richxtField' class='richTF' src='' onload='enableEditMode();'></iframe>";
+					}
+				?>			
+			</div>
 		</div>
-	</div>
+
+		<div class="row">
+			<div class="col-3 offset-1">Elige un archivo que quieras cargar: </div>
+			<div><input id="userFile" class="form-control" type="file" name="userFile"></div>
+		</div>
+		<div class="row justify-content-center">
+			<button type='submit' class='btn btn-primary my-3' name='build_memory'>Text laden</button>
+		</div>
+		
+	</form>
 
 	<script>
 		function enableEditMode() {

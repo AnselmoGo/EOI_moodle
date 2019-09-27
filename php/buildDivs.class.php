@@ -58,6 +58,10 @@ class buildDivs {
 		$job = explode(".", $job[$job_name]);
 		$job_name = 0;	//position where we get the job name
 		$job[$job_name] = strtolower($job[$job_name]);
+
+		$umlaute = new Substitute_Umlaute($job[$job_name]);
+		$job[$job_name] = $umlaute->replace();
+
 		$this->_txt = "<div id='x{$job[$job_name]}' class='item{$this->_cnt} front_item' onclick='visualiza(this)'></div>\n";
 		$this->_txt .= "<div class='item{$this->_cnt}'>" . "<img src='$img' alt='$job[$job_name]'></div>\n";
 	}
