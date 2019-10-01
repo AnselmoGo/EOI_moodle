@@ -18,7 +18,7 @@
 	<hr>
 	<form name="form" id="myForm" method="post" action="<?php BASE_URL . $_SERVER['PHP_SELF'] ?>" enctype="multipart/form-data">
 		<div class="row buttons">
-			<div class="col-5 offset-sm-1">			
+			<div class="col-6 offset-sm-1">			
 				<button type="button" class="btn btn-default glyphs" data-title="bold" onclick="execCmd('bold')">
 					<span class="glyphicon glyphicon-bold"></span>
 				</button>
@@ -34,10 +34,13 @@
 				<button type="button" class="btn btn-default glyphs" onclick="execCmd('copy')">
 					<span class="glyphicon glyphicon-duplicate"></span>
 				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('paste')">
-					<span class="glyphicon glyphicon-copy"></span>
+				<button type="button" class="btn btn-default glyphs" onclick="execCmd('undo')">
+					<span class="glyphicon glyphicon-erase"></span>
 				</button>
-				<select name="headers" id="headers" onchange="execCmdWithArg('formatBlock', this.value);">
+				<button type="button" class="btn btn-default glyphs" onclick="execCmd('redo')">
+					<span class="glyphicon glyphicon-repeat"></span>
+				</button>
+				<select name="headers" id="headers" onchange="execCmd('formatBlock', this.value);">
 					<option value="">??</option>
 					<option value="H1">H1</option>
 					<option value="H2">H2</option>
@@ -46,6 +49,10 @@
 					<option value="H5">H5</option>
 					<option value="H6">H6</option>
 				</select>
+		<!--		<button type="button" class="btn btn-default glyphs" onclick="execCmd('insertImage', prompt('Enter the image URL', ''))">  -->
+					<button type="button" class="btn btn-default glyphs" onclick="execCmd('insertImage', alert('hello'))">
+					<span class="glyphicon glyphicon-picture"></span>
+				</button>
 			</div>
 			<div class="col-4">
 				<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyLeft')">
@@ -63,18 +70,22 @@
 				<button type="button" class="btn btn-default glyphs" onclick="execCmd('insertUnorderedList')">
 					<span class="glyphicon glyphicon-list"></span>
 				</button>
+				<button type="button" class="btn btn-default glyphs" onclick="execCmd('indent')">
+					<span class="glyphicon glyphicon-indent-left"></span>
+				</button>
+				<button type="button" class="btn btn-default glyphs" onclick="execCmd('outdent')">
+					<span class="glyphicon glyphicon-indent-right"></span>
+				</button>
 			</div> 
 		</div>
 		<div class="row">
-			<div class="col-10 offset-1">
-				<!-- <iframe name='richextField' class='rchTF' src='' onload='enableEditMode();'></iframe>  -->
+			<div class="col-10 offset-1">				
 				<?php
 					if (isset($_POST["build_memory"])) {
-						$data = file_get_contents($_FILES["userFile"]["tmp_name"]);
-						//echo "<textarea name='richTextField'>".htmlspecialchars($data)."</textarea>";
+						$data = file_get_contents($_FILES["userFile"]["tmp_name"]);					
 						echo "<iframe name='richTextField' class='richTF' srcdoc=\"". htmlspecialchars($data) . "\" onload='enableEditMode();'></iframe>";
 					} else {
-						//echo "<iframe name='richxtField' class='richTF' src='' onload='enableEditMode();'></iframe>";
+						echo "<iframe name='richTextField' class='richTF' src='' onload='enableEditMode();'></iframe>";
 					}
 				?>			
 			</div>
@@ -90,17 +101,11 @@
 		
 	</form>
 
-	<script>
-		richTextField.document.designMode = 'On';
-
+	<script>		
 		function enableEditMode() {
-			richTextField.document.designMode = 'on';
+			richTextField.document.designMode = 'On';
 		}
-		function execCmd(command) {
-			richTextField.document.execCommand(command, false, null);
-		}
-
-		function execCmdWithArg(command, arg) {
+		function execCmd(command, arg = null) {
 			richTextField.document.execCommand(command, false, arg);
-		}
+		}	
 	</script>
