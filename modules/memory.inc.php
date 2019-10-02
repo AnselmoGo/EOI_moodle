@@ -17,10 +17,11 @@
 		</div>
 	</div>
 
+	<hr class="my-5">
+
 	<?php
 		if(isset($_POST['numero']) && $_POST['numero'] !== 0) {
-			$lang = "al";		// language varible (al = alemán)
-			//$table = $lang . "_" . $_POST['level'] . "_" . $_POST['actividad'] . "_" . $_POST['tema'];
+			$lang = "al";		// language variable (al = alemán)			
 			$table = "{$lang}_{$_POST['level']}_{$_POST['actividad']}_{$_POST['tema']}";
 
 			$query = "CREATE TABLE IF NOT EXISTS `$table` (

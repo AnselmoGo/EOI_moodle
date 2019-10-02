@@ -15,93 +15,146 @@
 			In dieser Seite hast du die Möglichkeit, einen Text zu schreiben oder ihn als .txt Datei hochzuladen, um aus ihm dann eine Leseverstehensübung zu erstellen. Viel Spaß bei der Arbeit.			
 		</div>
 	</div>
+
 	<hr>
+
 	<form name="form" id="myForm" method="post" action="<?php BASE_URL . $_SERVER['PHP_SELF'] ?>" enctype="multipart/form-data">
-		<div class="row buttons">
-			<div class="col-6 offset-sm-1">			
-				<button type="button" class="btn btn-default glyphs" data-title="bold" onclick="execCmd('bold')">
-					<span class="glyphicon glyphicon-bold"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('italic')">
-					<span class="glyphicon glyphicon-italic"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('underline')">
-					<span class="glyphicon glyphicon-text-color"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('cut')">
-					<span class="glyphicon glyphicon-scissors"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('copy')">
-					<span class="glyphicon glyphicon-duplicate"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('undo')">
-					<span class="glyphicon glyphicon-erase"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('redo')">
-					<span class="glyphicon glyphicon-repeat"></span>
-				</button>
-				<select name="headers" id="headers" onchange="execCmd('formatBlock', this.value);">
-					<option value="">??</option>
-					<option value="H1">H1</option>
-					<option value="H2">H2</option>
-					<option value="H3">H3</option>
-					<option value="H4">H4</option>
-					<option value="H5">H5</option>
-					<option value="H6">H6</option>
-				</select>
-		<!--		<button type="button" class="btn btn-default glyphs" onclick="execCmd('insertImage', prompt('Enter the image URL', ''))">  -->
-					<button type="button" class="btn btn-default glyphs" onclick="execCmd('insertImage', alert('hello'))">
-					<span class="glyphicon glyphicon-picture"></span>
-				</button>
-			</div>
-			<div class="col-4">
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyLeft')">
-					<span class="glyphicon glyphicon-align-left"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyCenter')">
-					<span class="glyphicon glyphicon-align-center"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyRight')">
-					<span class="glyphicon glyphicon-align-right"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('justifyFull')">
-					<span class="glyphicon glyphicon-align-justify"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('insertUnorderedList')">
-					<span class="glyphicon glyphicon-list"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('indent')">
-					<span class="glyphicon glyphicon-indent-left"></span>
-				</button>
-				<button type="button" class="btn btn-default glyphs" onclick="execCmd('outdent')">
-					<span class="glyphicon glyphicon-indent-right"></span>
-				</button>
-			</div> 
-		</div>
-		<div class="row">
-			<div class="col-10 offset-1">				
-				<?php
-					if (isset($_POST["build_memory"])) {
-						$data = file_get_contents($_FILES["userFile"]["tmp_name"]);					
-						echo "<iframe name='richTextField' class='richTF' srcdoc=\"". htmlspecialchars($data) . "\" onload='enableEditMode();'></iframe>";
-					} else {
-						echo "<iframe name='richTextField' class='richTF' src='' onload='enableEditMode();'></iframe>";
-					}
-				?>			
+		
+		<div class="row justify-content-center ">
+			<div class="col-10">						
+				<div class="row"> 
+					<div class="col-md-1 col-2">
+						Nivel:
+					</div>
+					<div class="col-md-4 col-8">
+						<select name="level" id="level" class="custom-select">
+							
+							<?php
+								echo "<option value='elige'>elige el nivel</option>";
+							
+								$table = "level";
+
+								$result = $mysqli->query("SELECT levels FROM $table");
+								while($row = $result->fetch_assoc()) {
+									$level = str_replace(".", "", $row['levels']);									
+									echo "<option value='" . $level . "' "; 
+									if(isset($_POST['level']) && $_POST['level'] == $level) {
+										echo "selected";
+									}
+									echo ">{$row['levels']}</option>";									
+								}
+							?>
+						</select>
+					</div>
+					<div class="offset-1 col-md-6 col-12">
+						<div class="row">
+							<div class="col-2">
+								Tema:
+							</div>				
+							<div class="col-8">
+								<input type="text" name="tema" class="form-control" id="usuario" placeholder="Indica el tema" value="<?php if(isset($_POST['tema'])) echo $_POST['tema']; ?>" required>
+							</div>
+						</div>			
+					</div>
+				</div>
 			</div>
 		</div>
 
-		<div class="row">
+		<hr>
+		
+			<?php
+				if(isset($_POST['createlv']) && $_POST['createlv'] !== null) {
+					$lang = "al";
+					$table = "{$lang}_{$_POST['level']}_{$_POST['tema']}";
+
+					$query = "CREATE TABLE IF NOT EXISTS $table (
+					  `id` int(3) UNSIGNED NOT NULL AUTO_INCREMENT,
+					  `textbausteinID` int(2) NOT NULL DEFAULT '',
+					  `gap` int(3) NOT NULL,
+					  `exercise` text NOT NULL DEFAULT '',
+					  `solution` varchar(65) NOT NULL DEFAULT '',
+					  `imgID` int(3) NOT NULL,
+					  `img` varchar(255) NOT NULL DEFAULT '',
+					  PRIMARY KEY (`id`)
+					)";
+
+					// create the new table related with the new info introduced by the user
+					if(!$mysqli->query($query)) {
+						echo "Table creation failed: " . $mysqli->errno . " - " . $mysqli->error;
+					} else {
+						echo "Table successfully created!!!";
+					}
+
+					if (!is_dir("modules/$lang/{$_POST['level']}/{$_POST['tema']}/img")) {
+						// creates directories recursively in order to save the pages & pictures in them
+						if(mkdir("modules/$lang/{$_POST['level']}/{$_POST['tema']}/img", 0777, true)) {
+							echo "<br /><strong>Directory created successfully!!</strong><br />";
+						}
+					} else {
+						echo "<br />Directory already exists.<br />";
+					}
+
+					
+
+				}
+
+
+				if(!isset($_POST["createlv"])) {
+					echo "<textarea id='summernote'name='editordata'>";
+				} else {
+					echo $_POST['editordata'];
+				}
+
+				if(isset($_POST["build_memory"])) {
+					$data = file_get_contents($_FILES["userFile"]["tmp_name"]);
+					echo htmlspecialchars($data);
+					unset($_POST["build_memory"]);					
+				}
+
+				if(!isset($_POST["createlv"])) {
+					echo "</textarea>";
+				}
+				
+				unset($_POST["createlv"]);
+			?>
+		
+
+		<div class="row mt-3">
 			<div class="col-3 offset-1">Elige un archivo que quieras cargar: </div>
-			<div><input id="userFile" class="form-control" type="file" name="userFile"></div>
+			<div class="col-6"><input id="userFile" class="form-control" type="file" name="userFile"></div>
 		</div>
 		<div class="row justify-content-center">
-			<button type='submit' class='btn btn-primary my-3' name='build_memory'>Text laden</button>
+			<div class="col-2 offset-4">
+				<button type='submit' class='btn btn-primary my-3' name='build_memory'>Text laden</button>
+			</div>
+			<div class="col-6">
+				<button type='submit' class='btn btn-primary my-3' name='createlv'>Seite erstellen</button>
+			</div>			
 		</div>
 		
 	</form>
 
-	<script>		
+	<script>
+		$(document).ready(function() {
+		  $('#summernote').summernote();
+		});
+
+		$('#summernote').summernote({
+		  toolbar: [
+		    // [groupName, [list of button]]
+		    ['style', ['style']],
+			  ['font', ['bold', 'italic', 'underline', 'clear']],
+			  ['view', ['undo', 'redo']],
+			  ['fontname', ['fontname']],
+			  ['color', ['color']],
+			  ['para', ['ul', 'ol', 'paragraph']],
+			  ['table', ['table']],
+			  ['insert', ['hr', 'link', 'picture', 'video']],
+			  ['view', ['fullscreen', 'codeview', 'help']],
+		  ]
+		});
+
+
 		function enableEditMode() {
 			richTextField.document.designMode = 'On';
 		}
