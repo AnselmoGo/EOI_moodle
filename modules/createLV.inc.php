@@ -67,6 +67,7 @@
 					$lang = "al";
 					$table = "{$lang}_{$_POST['level']}_{$_POST['tema']}";
 
+					/*
 					$query = "CREATE TABLE IF NOT EXISTS $table (
 					  `id` int(3) UNSIGNED NOT NULL AUTO_INCREMENT,
 					  `textbausteinID` int(2) NOT NULL DEFAULT '',
@@ -77,6 +78,7 @@
 					  `img` varchar(255) NOT NULL DEFAULT '',
 					  PRIMARY KEY (`id`)
 					)";
+					
 
 					// create the new table related with the new info introduced by the user
 					if(!$mysqli->query($query)) {
@@ -84,6 +86,7 @@
 					} else {
 						echo "Table successfully created!!!";
 					}
+					*/
 
 					if (!is_dir("modules/$lang/{$_POST['level']}/{$_POST['tema']}/img")) {
 						// creates directories recursively in order to save the pages & pictures in them
@@ -94,7 +97,29 @@
 						echo "<br />Directory already exists.<br />";
 					}
 
-					
+					//Now we have to edit $_POST['editordata'] to load it into the DB
+
+					//substitute the bold words with -NUMBER-
+					//testing the function preg_match
+					$subject = " <b>This is</b> the new <b>Text we are</b> working <b>on</b> at the moment. We hope you <b>like</b> it and will be willing to work with it until you try <b>another</b> one at <b>the</b> weekend.";					
+
+					str_replace("<b>", "<b>", $subject, $cnt);
+					for($i=1; $i <= $cnt; $i++) {
+						$returns[$i] = strstr($subject, "<b>");
+						$returns[$i] = str_replace("<b>", "", $returns[$i]);
+						$returns[$i] = strstr($returns[$i], "</b>", true); 
+
+						$subject = preg_replace("(<b>[A-z ]*</b>)", "-$i-", $subject, 1);
+					}								
+
+					if ($subject != null) {
+						echo "We have done the correct thing.<br />";
+						echo $subject . "<br /><br />";
+						print_r($returns);
+						echo "<br/><br/>";
+					} else {
+						echo "We have failed to do the correct thing.";
+					}
 
 				}
 
