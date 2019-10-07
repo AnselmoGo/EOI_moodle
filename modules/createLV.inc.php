@@ -27,10 +27,10 @@
 						Nivel:
 					</div>
 					<div class="col-md-4 col-8">
-						<select name="level" id="level" class="custom-select">
+						<select name="level" id="level" class="custom-select" required>
 							
 							<?php
-								echo "<option value='elige'>elige el nivel</option>";
+								echo "<option value=''>elige el nivel</option>";
 							
 								$table = "level";
 
@@ -67,10 +67,9 @@
 					$lang = "al";
 					$table = "{$lang}_{$_POST['level']}_{$_POST['tema']}";
 
-					/*
+					
 					$query = "CREATE TABLE IF NOT EXISTS $table (
-					  `id` int(3) UNSIGNED NOT NULL AUTO_INCREMENT,
-					  `textbausteinID` int(2) NOT NULL DEFAULT '',
+					  `id` int(3) UNSIGNED NOT NULL AUTO_INCREMENT,					  
 					  `gap` int(3) NOT NULL,
 					  `exercise` text NOT NULL DEFAULT '',
 					  `solution` varchar(65) NOT NULL DEFAULT '',
@@ -86,7 +85,7 @@
 					} else {
 						echo "Table successfully created!!!";
 					}
-					*/
+					
 
 					if (!is_dir("modules/$lang/{$_POST['level']}/{$_POST['tema']}/img")) {
 						// creates directories recursively in order to save the pages & pictures in them
@@ -95,39 +94,47 @@
 						}
 					} else {
 						echo "<br />Directory already exists.<br />";
-					}
+					}							
 
-					//Now we have to edit $_POST['editordata'] to load it into the DB
+					//str_replace("<b>", "<b>", $subject, $cnt);
+					str_replace("<b>", "<b>", $_POST['editordata'], $cnt);
+					$subject = $_POST['editordata'];
 
-					//substitute the bold words with -NUMBER-
-					//testing the function preg_match
-					$subject = " <b>This is</b> the new <b>Text we are</b> working <b>on</b> at the moment. We hope you <b>like</b> it and will be willing to work with it until you try <b>another</b> one at <b>the</b> weekend.";					
-
-					str_replace("<b>", "<b>", $subject, $cnt);
-					for($i=1; $i <= $cnt; $i++) {
+					for($i=0; $i < $cnt; $i++) {
 						$returns[$i] = strstr($subject, "<b>");
 						$returns[$i] = str_replace("<b>", "", $returns[$i]);
 						$returns[$i] = strstr($returns[$i], "</b>", true); 
 
-						$subject = preg_replace("(<b>[A-z ]*</b>)", "-$i-", $subject, 1);
-					}								
+						$subject = preg_replace("(<b>[A-z ]*</b>)", "-$i- ", $subject, 1);
+					}	
 
-					if ($subject != null) {
-						echo "We have done the correct thing.<br />";
+					// !!!--- before going on we have to replace the img and save the pictures ---!!!							
+
+					if ($_POST['editordata'] != null) {						
 						echo $subject . "<br /><br />";
-						print_r($returns);
+						if(isset($returns)) {
+							print_r($returns);
+						}
 						echo "<br/><br/>";
 					} else {
 						echo "We have failed to do the correct thing.";
 					}
-
+				
+					$query = "INSERT INTO $table (gap, exercise) VALUES (-1, '$subject')";
+					if($mysqli->query($query) !== TRUE) {
+						echo "There has been a problem!";
+					}
+					for($i = 0; $i < $cnt; $i++) {
+						$query = "INSERT INTO $table (gap, solution) VALUES ($i, '{$returns[$i]}')";
+						if($mysqli->query($query) !== TRUE) {
+							echo "There has been a problem!";
+						}
+					}
 				}
 
 
 				if(!isset($_POST["createlv"])) {
 					echo "<textarea id='summernote'name='editordata'>";
-				} else {
-					echo $_POST['editordata'];
 				}
 
 				if(isset($_POST["build_memory"])) {
@@ -141,6 +148,21 @@
 				}
 				
 				unset($_POST["createlv"]);
+
+				echo "<div id='include'>";
+				echo "<div class='row mt-3'>";
+					echo "<div class='col-md-5 offset-md-1 col-12'>";
+						echo "Incluye el número de distractores que quieres añadir: ";
+					echo "</div>";
+					echo "<div class='col-md-3 col-6'>";													
+						echo "<input type='text' name='distractor' class='form-control' id='distract' placeholder='número de distractores'>";
+					echo "</div>";
+					echo "<div class='col-md-3 col-6'>";
+						echo "<input type='button' class='btn btn-primary' name='distractor' value='Incluir distractores' onclick='distractores();'></input>";
+					echo "</div>";											
+				echo "</div>";
+				echo "</div>";
+
 			?>
 		
 
@@ -179,6 +201,23 @@
 		  ]
 		});
 
+		function distractores() {
+			
+			alert(document.getElementById("distract").value);
+			count = document.getElementById("distract").value;
+
+			var txt = '';
+
+			for(i=0; i < count; i++) {
+				txt += "<div class='row my-1'>";
+				txt += "<div class='col-3 offset-1'>";
+				txt += "<input type='text' name='distractor" + i + "' class='form-control' id='usuario' placeholder='distractor " + (i+1) + "'>";
+				txt += "</div>";
+				txt += "</div>";
+			}
+
+			document.getElementById("include").innerHTML = txt;
+		}
 
 		function enableEditMode() {
 			richTextField.document.designMode = 'On';
