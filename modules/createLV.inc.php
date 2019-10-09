@@ -100,7 +100,7 @@
 					str_replace("<b>", "<b>", $_POST['editordata'], $cnt);
 					$subject = $_POST['editordata'];
 
-					for($i=0; $i < $cnt; $i++) {
+					for($i = 0; $i < $cnt; $i++) {
 						$returns[$i] = strstr($subject, "<b>");
 						$returns[$i] = str_replace("<b>", "", $returns[$i]);
 						$returns[$i] = strstr($returns[$i], "</b>", true); 
@@ -108,6 +108,12 @@
 						$subject = preg_replace("(<b>[A-z ]*</b>)", "-$i- ", $subject, 1);
 					}	
 
+					if(isset($_POST['distractores']) && $_POST['distractores'] > 0) {
+						for($i = 0; $i < $_POST['distractores']; $i++) {
+							$distract[] = $_POST["distractor$i"];
+						}
+					}					
+					
 					// !!!--- before going on we have to replace the img and save the pictures ---!!!							
 
 					if ($_POST['editordata'] != null) {						
@@ -130,6 +136,12 @@
 							echo "There has been a problem!";
 						}
 					}
+					foreach ($distract as $value) {
+						$query = "INSERT INTO $table (gap, solution) VALUES (-2, '{$value}')";
+						if($mysqli->query($query) !== true) {
+							echo "There has been a problem!";
+						}
+					}
 				}
 
 
@@ -139,8 +151,7 @@
 
 				if(isset($_POST["build_memory"])) {
 					$data = file_get_contents($_FILES["userFile"]["tmp_name"]);
-					echo htmlspecialchars($data);
-					unset($_POST["build_memory"]);					
+					echo htmlspecialchars($data);									
 				}
 
 				if(!isset($_POST["createlv"])) {
@@ -149,19 +160,23 @@
 				
 				unset($_POST["createlv"]);
 
-				echo "<div id='include'>";
-				echo "<div class='row mt-3'>";
-					echo "<div class='col-md-5 offset-md-1 col-12'>";
-						echo "Incluye el número de distractores que quieres añadir: ";
+				if(isset($_POST["build_memory"])) {
+					echo "<div id='include'>";
+					echo "<div class='row mt-3'>";
+						echo "<div class='col-md-5 offset-md-1 col-12'>";
+							echo "Incluye el número de distractores que quieres añadir: ";
+						echo "</div>";
+						echo "<div class='col-md-3 col-6'>";													
+							echo "<input type='text' name='distractor' class='form-control' id='distract' placeholder='número de distractores'>";
+						echo "</div>";
+						echo "<div class='col-md-3 col-6'>";
+							echo "<input type='button' class='btn btn-primary' name='distractor' value='Incluir distractores' onclick='distractores();'></input>";
+						echo "</div>";											
 					echo "</div>";
-					echo "<div class='col-md-3 col-6'>";													
-						echo "<input type='text' name='distractor' class='form-control' id='distract' placeholder='número de distractores'>";
 					echo "</div>";
-					echo "<div class='col-md-3 col-6'>";
-						echo "<input type='button' class='btn btn-primary' name='distractor' value='Incluir distractores' onclick='distractores();'></input>";
-					echo "</div>";											
-				echo "</div>";
-				echo "</div>";
+
+					unset($_POST["build_memory"]);
+				}
 
 			?>
 		
@@ -203,10 +218,10 @@
 
 		function distractores() {
 			
-			alert(document.getElementById("distract").value);
+			alert("Se van a incluir " + document.getElementById("distract").value + " distractores.");
 			count = document.getElementById("distract").value;
 
-			var txt = '';
+			var txt = "<input type='hidden' name='distractores' value='" + count + "'>";
 
 			for(i=0; i < count; i++) {
 				txt += "<div class='row my-1'>";
