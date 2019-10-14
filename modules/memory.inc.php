@@ -49,7 +49,7 @@
 			}
 
 
-			// looping throw all the rows included by the user
+			// looping through all the rows included by the user
 			for($i = 1; $i <= $_POST['numero']; $i++) {
 				//$aux_num = $i + 1;
 				$item = "item{$i}";
@@ -132,29 +132,10 @@
 			    	echo "<br/>Scaled correctly";
 			    }
 
-			    imagejpeg($thumb, $new_file = sprintf("./modules/$lang/{$_POST['level']}/{$_POST['actividad']}/{$_POST['tema']}/img/%s.%s",
-			            //sha1_file($_FILES[$itemFile]['tmp_name']),
+			    imagejpeg($thumb, $new_file = sprintf("./modules/$lang/{$_POST['level']}/{$_POST['actividad']}/{$_POST['tema']}/img/%s.%s",			            
 			        		$item,
 			            $ext
 			        ));
-
-
-			    // You should name it uniquely.
-			    // DO NOT USE $_FILES[$itemFile]['name'] WITHOUT ANY VALIDATION !!
-			    // On this example, obtain safe unique name from its binary data.
-			    /*
-			    if (!move_uploaded_file(
-			        $_FILES[$itemFile]['tmp_name'],
-			        //$new_file = sprintf('./uploads/%s.%s',
-			        $new_file = sprintf("./modules/$lang/{$_POST['level']}/{$_POST['actividad']}/{$_POST['tema']}/img/%s.%s",
-			            //sha1_file($_FILES[$itemFile]['tmp_name']),
-			        		$item,
-			            $ext
-			        )
-			    )) {
-			        throw new RuntimeException('Failed to move uploaded file.');
-			    }
-			    */
 
 	    		echo '<br />File is uploaded successfully.';
 
@@ -184,17 +165,32 @@
 			$needle = 'default';
 			$file = 'index_switch.php';
 
+			//include all the necessary variables & POSTs into an array to create the addArray
+			$addArray[] = $_POST['tema'];
+			$addArray[] = $lang;
+			$addArray[] = $_POST['level'];
+			$addArray[] = $_POST['actividad'];
+
+			//get the topic of the activity
+			$topic = "Memoryspiel";
+
+
 			//create the array that is going to be included into the $file
+/*
 			$addArray[] = "\tcase '" . $_POST['tema'] . "':";
 			$addArray[] = "\t\t" . '$page = "' . $lang . '/' . $_POST['level'] . '/' . $_POST['actividad'] . '/' . $_POST['tema'] . '/' . $_POST['tema'] . '.inc.php";';
 			$addArray[] = "\t\t" . '$page_title = "$head_title - Memoryspiel - ' . ucfirst($_POST['tema']) . '";';
-			$addArray[] = "\t\t" . 'break;';				
+			$addArray[] = "\t\t" . 'break;';	
+*/			
 
 			$addFile = new AddFile($file);
+			//call the corresponding method to create the additional case entry
+			$addFile->addArray($addArray, $topic);
 			// divides the array into several parts depending on where the $needle is
 			$addFile->splitArray($needle);
 			// returns true if the array was merged correctly
-			if(($fdbck = $addFile->mergeArrays($addArray)) === true) {
+			//if(($fdbck = $addFile->mergeArrays($addArray)) === true) {
+			if(($fdbck = $addFile->mergeArrays()) === true) {
 				$addFile->makeString();
 				$addFile->writeFile();
 				echo "<br />New CASE successfully included!!!<br />";
@@ -208,7 +204,7 @@
 
 			$includeString = "<?php\r\n";
 			$includeString .= "\t" . '$table = \'' . strtolower($table) . "';\r\n";
-			$includeString .= "\t" . '$secondURL = ' . "'/$lang/{$_POST['level']}/{$_POST['actividad']}/{$_POST['tema']}';\r\n";
+			//$includeString .= "\t" . '$secondURL = ' . "'/$lang/{$_POST['level']}/{$_POST['actividad']}/{$_POST['tema']}';\r\n";
 			$includeString .= "\trequire_once('$path');\r\n";
 			$includeString .= "?>";
 
@@ -219,10 +215,9 @@
 				echo "<br />The new entry has been included successfully!!!<br />";
 			}
 
-			echo "<br />Deine Seite unter folgender Adresse zu erreichen:<br />";
+			echo "<br />Deine Seite ist unter folgender Adresse zu erreichen:<br />";
 			echo "<a href='" . BASE_URL . "/" . $_POST['tema'] . "' target='_blank'>". BASE_URL . "/" . $_POST['tema'] . "</a><br />";
-
-			// include the link to where the new page is
+			
 		} else {		
 	?>
 
@@ -234,8 +229,8 @@
 						Nivel:
 					</div>
 					<div class="col-md-4 col-8">
-						<select name="level" id="level" class="custom-select">
-							<option value="elige" selected>elige el nivel</option>
+						<select name="level" id="level" class="custom-select" required>
+							<option value="">elige el nivel</option>
 							<?php
 								$table = "level";
 
@@ -256,8 +251,8 @@
 								Actividad:
 							</div>				
 							<div class="col-8">
-								<select name="actividad" id="actividad" class="custom-select">
-									<option value="elige" selected>elige el tipo de actividad</option>
+								<select name="actividad" id="actividad" class="custom-select" required>
+									<option value="">elige el tipo de actividad</option>
 									<?php									
 										$table = "activity";
 

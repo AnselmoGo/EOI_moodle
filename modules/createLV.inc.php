@@ -2,6 +2,7 @@
   require_once('./modules/base_url.php');
 	require_once('./includes/config_db_access.php');
 	require_once('./php/addFile.class.php');
+
 	//create the object to access the db
 	$config = config_db_access::getInstance();
 	$mysqli = $config->getConnection();
@@ -63,12 +64,12 @@
 		<hr>
 		
 			<?php
-				if(isset($_POST['createlv']) && $_POST['createlv'] !== null) {
-					$lang = "al";
+				$lang = "al";
+				if(isset($_POST['createlv']) && $_POST['createlv'] !== null) {					
 					$table = "{$lang}_{$_POST['level']}_{$_POST['tema']}";
 
 					
-					$query = "CREATE TABLE IF NOT EXISTS $table (
+					$query = "CREATE TABLE $table (
 					  `id` int(3) UNSIGNED NOT NULL AUTO_INCREMENT,					  
 					  `gap` int(3) NOT NULL,
 					  `exercise` text NOT NULL DEFAULT '',
@@ -116,15 +117,15 @@
 					
 					// !!!--- before going on we have to replace the img and save the pictures ---!!!							
 
-					if ($_POST['editordata'] != null) {						
-						echo $subject . "<br /><br />";
-						if(isset($returns)) {
-							print_r($returns);
-						}
-						echo "<br/><br/>";
-					} else {
-						echo "We have failed to do the correct thing.";
-					}
+		if ($_POST['editordata'] != null) {						
+			echo $subject . "<br /><br />";
+			if(isset($returns)) {
+				print_r($returns);
+			}
+			echo "<br/><br/>";
+		} else {
+			echo "We have failed to do the correct thing.";
+		}
 				
 					$query = "INSERT INTO $table (gap, exercise) VALUES (-1, '$subject')";
 					if($mysqli->query($query) !== TRUE) {
@@ -158,7 +159,7 @@
 					echo "</textarea>";
 				}
 				
-				unset($_POST["createlv"]);
+				//unset($_POST["createlv"]);
 
 				if(isset($_POST["build_memory"])) {
 					echo "<div id='include'>";
@@ -177,6 +178,65 @@
 
 					unset($_POST["build_memory"]);
 				}
+
+
+			if(isset($_POST['createlv'])) {
+
+			// --- include the entry into the corresponding space in the index_switch.php file ---
+			$needle = 'default';
+			$file = 'index_switch.php';
+
+			$addArray[] = $_POST['tema'];
+			$addArray[] = $lang;
+			$addArray[] = $_POST['level'];
+
+			$topic = "Leseverstehensübung";
+
+			//create the array that is going to be included into the $file
+/*			
+			$addArray[] = "\tcase '" . $_POST['tema'] . "':";
+			$addArray[] = "\t\t" . '$page = "' . $lang . '/' . $_POST['level']  . '/' . $_POST['tema'] . '/' . $_POST['tema'] . '.inc.php";';
+			$addArray[] = "\t\t" . '$page_title = "$head_title - Leseverstehensübung - ' . ucfirst($_POST['tema']) . '";';
+			$addArray[] = "\t\t" . 'break;';
+*/				
+
+			$addFile = new AddFile($file);
+			//call the corresponding method to create the additional case entry
+			$addFile->addArray($addArray, $topic);
+			// divides the array into several parts depending on where the $needle is
+			$addFile->splitArray($needle);
+			// returns true if the array was merged correctly
+			if(($fdbck = $addFile->mergeArrays($addArray)) === true) {
+				$addFile->makeString();
+				$addFile->writeFile();
+				echo "<br />New CASE successfully included!!!<br />";
+			} else {
+				echo $fdbck;
+			}
+			// --- END WRITE INTO THE index_switch.php file
+
+			// write the file including the code to build the new page (create new file and fill with info)
+			$path = "./modules/$lang/buildLV.inc.php";
+
+			$includeString = "<?php\r\n";
+			$includeString .= "\t" . '$table = \'' . strtolower($table) . "';\r\n";
+			//$includeString .= "\t" . '$secondURL = ' . "'/$lang/{$_POST['level']}/{$_POST['tema']}';\r\n";
+			$includeString .= "\trequire_once('$path');\r\n";
+			$includeString .= "?>";
+
+			$handle = fopen("modules/$lang/{$_POST['level']}/{$_POST['tema']}/{$_POST['tema']}.inc.php", "w+");
+			if(!fwrite($handle, $includeString)) {
+				echo "<br />Entry could not be included into the new file.<br />";
+			} else {
+				echo "<br />The new entry has been included successfully!!!<br />";
+			}
+
+			echo "<br />Deine Seite unter folgender Adresse zu erreichen:<br />";
+			echo "<a href='" . BASE_URL . "/" . $_POST['tema'] . "' target='_blank'>". BASE_URL . "/" . $_POST['tema'] . "</a><br />";
+
+		}
+
+		unset($_POST["createlv"]);
 
 			?>
 		
