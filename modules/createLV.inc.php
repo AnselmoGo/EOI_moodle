@@ -79,14 +79,37 @@
 					  PRIMARY KEY (`id`)
 					)";
 					
+					
+					try {
 
+						if(!$mysqli->query($query)) {
+							$msg = sprintf("Table creation failed. %d - %s<br />", $mysqli->errno, $mysqli->error);
+							throw new RuntimeException($msg);
+						}
+
+						if(!is_dir("modules/$lang/{$_POST['level']}/{$_POST['tema']}/img")) {
+							// creates directories recursively in order to save the pages & pictures in them
+							if(!mkdir("modules/$lang/{$_POST['level']}/{$_POST['tema']}/img", 0777, true)) {							
+								throw new RuntimeException("The directory could not be created.<br />");								
+							}
+						} else {
+							throw new RuntimeException("The directory already exists. Please choose another name.<br />");
+						}
+
+					} catch (RuntimeException $e) {
+
+						echo $e->getMessage();
+					
+					}
+					
+					/*
 					// create the new table related with the new info introduced by the user
 					if(!$mysqli->query($query)) {
 						echo "Table creation failed: " . $mysqli->errno . " - " . $mysqli->error;
 					} else {
 						echo "Table successfully created!!!";
 					}
-					
+
 
 					if (!is_dir("modules/$lang/{$_POST['level']}/{$_POST['tema']}/img")) {
 						// creates directories recursively in order to save the pages & pictures in them
@@ -96,6 +119,7 @@
 					} else {
 						echo "<br />Directory already exists.<br />";
 					}							
+					*/
 
 					//str_replace("<b>", "<b>", $subject, $cnt);
 					str_replace("<b>", "<b>", $_POST['editordata'], $cnt);
