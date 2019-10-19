@@ -10,7 +10,8 @@ class Build_Text {
 	private $_num_gap = -1;
 	private $_num_img = -3;
 	private $_num_gaps = 0;
-	private $_select = '';
+	private $_num_rows = 0;
+	private $_select_option = '';
 	private $_txt = '';
 	private $_padding = "pad_right";
 	private $_floating = "float-left";
@@ -24,7 +25,6 @@ class Build_Text {
 	function set_TbsId($TbsId) {
 		$this->_tbsId = $TbsId;
 	}
-
 	
 	private function get_Max_gaps($mysqli) {
 		$result = $mysqli->query("SELECT MAX(gap) FROM $this->_table");
@@ -49,10 +49,8 @@ class Build_Text {
 		$this->_txt = str_replace("#$num#", $img, $this->_txt);
 	}
 
-
-	private function build_Select($mysqli) {
-		$this->_select = "<select class='form-control-sm'>";
-		$this->_select .= "<option>- ??? -</option>";
+	private function build_Select_Option($mysqli) {		
+		$this->_select_option .= "<option>- ??? -</option>";
 
 		$result = $mysqli->query("SELECT solution FROM $this->_table WHERE gap != $this->_num_gap AND gap != $this->_num_img");
 		while($row = $result->fetch_assoc()) {			
@@ -62,12 +60,9 @@ class Build_Text {
 		shuffle($solution);
 
 		foreach ($solution as $value) {
-			$this->_select .= "<option>$value</option>";
+			$this->_select_option .= "<option>$value</option>";
 		}
-
-		$this->_select .= "</select>";
 	}
-
 
 	function get_Text($mysqli){
 		$result = $mysqli->query("SELECT exercise FROM $this->_table WHERE gap = $this->_num_gap ORDER BY id");
@@ -77,10 +72,15 @@ class Build_Text {
 		
 		$this->get_Max_gaps($mysqli);
 		
-		$this->build_Select($mysqli);
+		$this->build_Select_Option($mysqli);
 
 		for($i = 0; $i <= $this->_num_gaps; $i++) {
-			$this->_txt = str_replace("-$i-", $this->_select, $this->_txt);
+			$select = sprintf("<span name='outer_item%d' id='outer_item%d'>", $i, $i);
+			$select .= sprintf("<select name='item%d' id='item%d' class='form-control-sm'>", $i, $i);
+			$select .= $this->_select_option;
+			$select .= "</select></span>";
+
+			$this->_txt = str_replace("-$i-", $select, $this->_txt);
 
 			if(strstr($this->_txt, "#$i#") !== false) {
 				$this->get_Images($mysqli, $i);
@@ -88,6 +88,21 @@ class Build_Text {
 		}
 
 		return $this->_txt;
+	}
+
+	function get_Solution($mysqli) {
+		$result = $mysqli->query("SELECT solution FROM $this->_table WHERE gap >= 0 ORDER BY gap");
+		$this->_num_rows = $mysqli->affected_rows;
+
+		while($row = $result->fetch_assoc()) {
+			$solution[] = $row['solution'];
+		}
+
+		return $solution;
+	}
+
+	function get_Rows() {
+		return $this->_num_rows;
 	}
 }
 ?>

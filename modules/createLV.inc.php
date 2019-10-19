@@ -2,11 +2,14 @@
   require_once('./modules/base_url.php');
 	require_once('./includes/config_db_access.php');
 	require_once('./php/addFile.class.php');
+	require_once('./php/htmlpurifier/library/HTMLPurifier.auto.php');
 
 	//create the object to access the db
 	$config = config_db_access::getInstance();
 	$mysqli = $config->getConnection();
 	$mysqli->set_charset("utf8");
+
+	$config_pure = HTMLPurifier_Config::createDefault();
 ?>
 	<div class="row justify-content-center mt-5">
 		<div class="center mt-3 col-8">
@@ -39,7 +42,7 @@
 								while($row = $result->fetch_assoc()) {
 									$level = str_replace(".", "", $row['levels']);									
 									echo "<option value='" . $level . "' "; 
-									if(isset($_POST['level']) && $_POST['level'] == $level) {
+									if(isset($_POST['level']) && !isset($_POST['createlv']) && $_POST['level'] == $level) {
 										echo "selected";
 									}
 									echo ">{$row['levels']}</option>";									
@@ -53,7 +56,7 @@
 								Tema:
 							</div>				
 							<div class="col-8">
-								<input type="text" name="tema" class="form-control" id="usuario" placeholder="Indica el tema" value="<?php if(isset($_POST['tema'])) echo $_POST['tema']; ?>" required>
+								<input type="text" name="tema" class="form-control" id="usuario" placeholder="Indica el tema" value="<?php if(isset($_POST['tema']) && !isset($_POST['createlv'])) echo $_POST['tema']; ?>" required>
 							</div>
 						</div>			
 					</div>
@@ -63,208 +66,207 @@
 
 		<hr>
 		
-			<?php
-				$lang = "al";
-				if(isset($_POST['createlv']) && $_POST['createlv'] !== null) {					
-					$table = "{$lang}_{$_POST['level']}_{$_POST['tema']}";
+		<?php
+			$lang = "al";
 
-					
-					$query = "CREATE TABLE $table (
-					  `id` int(3) UNSIGNED NOT NULL AUTO_INCREMENT,					  
-					  `gap` int(3) NOT NULL,
-					  `exercise` text NOT NULL DEFAULT '',
-					  `solution` varchar(65) NOT NULL DEFAULT '',
-					  `imgID` int(3) NOT NULL,
-					  `img` varchar(255) NOT NULL DEFAULT '',
-					  PRIMARY KEY (`id`)
-					)";
-					
-					
-					try {
+			if(isset($_POST['createlv']) && $_POST['createlv'] !== null) {
+				$level = htmlspecialchars($_POST['level']);
+				$tema = htmlspecialchars($_POST['tema']);
 
-						if(!$mysqli->query($query)) {
-							$msg = sprintf("Table creation failed. %d - %s<br />", $mysqli->errno, $mysqli->error);
-							throw new RuntimeException($msg);
+				$table = "{$lang}_{$level}_$tema";
+				$directory = "modules/$lang/$level/$tema";
+				$img_directory = "$directory/img";
+				
+				$query = "CREATE TABLE $table (
+				  `id` int(3) UNSIGNED NOT NULL AUTO_INCREMENT,					  
+				  `gap` int(3) NOT NULL,
+				  `exercise` text NOT NULL DEFAULT '',
+				  `solution` varchar(65) NOT NULL DEFAULT '',
+				  `imgID` int(3) NOT NULL,
+				  `img` varchar(255) NOT NULL DEFAULT '',
+				  PRIMARY KEY (`id`)
+				)";
+									
+				try {
+
+					if(!$mysqli->query($query)) {
+						$msg = sprintf("Table creation failed. %d - %s<br />", $mysqli->errno, $mysqli->error);
+						throw new RuntimeException($msg);
+					}
+
+					if(!is_dir($img_directory)) {
+						// creates directories recursively in order to save the pages & pictures in them
+						if(!mkdir($img_directory, 0777, true)) {							
+							throw new RuntimeException("The directory could not be created.<br />");								
 						}
+					} else {
+						throw new RuntimeException("The directory already exists. Please choose another name.<br />");
+					}
 
-						if(!is_dir("modules/$lang/{$_POST['level']}/{$_POST['tema']}/img")) {
-							// creates directories recursively in order to save the pages & pictures in them
-							if(!mkdir("modules/$lang/{$_POST['level']}/{$_POST['tema']}/img", 0777, true)) {							
-								throw new RuntimeException("The directory could not be created.<br />");								
+				} catch (RuntimeException $e) {
+					echo $e->getMessage();					
+				}
+				
+				try {
+					// this is to get the number of items that will be substituted
+					if(isset($_POST['editordata'])) {
+						str_replace("<u>", "<u>", $_POST['editordata'], $cnt);
+						$purifier = new HTMLPurifier($config_pure);
+						$subject = $purifier->purify($_POST['editordata']);
+						//$subject = $_POST['editordata'];
+					} else {
+						throw new RuntimeException("You haven't included any text.");
+					}
+						
+
+					if($cnt <= 0) {
+						throw new RuntimeException("You haven't selected any items for the exercise.");						
+					}
+
+					for($i = 0; $i < $cnt; $i++) {
+						$returns[$i] = strstr($subject, "<u>");
+						$returns[$i] = str_replace("<u>", "", $returns[$i]);
+						$returns[$i] = strstr($returns[$i], "</u>", true); 
+
+						$subject = preg_replace("(<u>[A-z ]*</u>)", "-$i- ", $subject, 1);
+					}
+
+					if(isset($_POST['distractores'])) {
+						if($_POST['distractores'] > 0) {
+							for($i = 0; $i < $_POST['distractores']; $i++) {
+								$distract[] = htmlspecialchars($_POST["distractor$i"]);
 							}
 						} else {
-							throw new RuntimeException("The directory already exists. Please choose another name.<br />");
-						}
-
-					} catch (RuntimeException $e) {
-
-						echo $e->getMessage();
-					
-					}
-					
-					/*
-					// create the new table related with the new info introduced by the user
-					if(!$mysqli->query($query)) {
-						echo "Table creation failed: " . $mysqli->errno . " - " . $mysqli->error;
-					} else {
-						echo "Table successfully created!!!";
+							throw new RuntimeException("You haven't chosen any distractors.");
+						}	
 					}
 
-
-					if (!is_dir("modules/$lang/{$_POST['level']}/{$_POST['tema']}/img")) {
-						// creates directories recursively in order to save the pages & pictures in them
-						if(mkdir("modules/$lang/{$_POST['level']}/{$_POST['tema']}/img", 0777, true)) {
-							echo "<br /><strong>Directory created successfully!!</strong><br />";
-						}
-					} else {
-						echo "<br />Directory already exists.<br />";
-					}							
-					*/
-
-					//str_replace("<b>", "<b>", $subject, $cnt);
-					str_replace("<b>", "<b>", $_POST['editordata'], $cnt);
-					$subject = $_POST['editordata'];
-
-					for($i = 0; $i < $cnt; $i++) {
-						$returns[$i] = strstr($subject, "<b>");
-						$returns[$i] = str_replace("<b>", "", $returns[$i]);
-						$returns[$i] = strstr($returns[$i], "</b>", true); 
-
-						$subject = preg_replace("(<b>[A-z ]*</b>)", "-$i- ", $subject, 1);
-					}	
-
-					if(isset($_POST['distractores']) && $_POST['distractores'] > 0) {
-						for($i = 0; $i < $_POST['distractores']; $i++) {
-							$distract[] = $_POST["distractor$i"];
-						}
-					}					
-					
-					// !!!--- before going on we have to replace the img and save the pictures ---!!!							
-
-		if ($_POST['editordata'] != null) {						
-			echo $subject . "<br /><br />";
-			if(isset($returns)) {
-				print_r($returns);
-			}
-			echo "<br/><br/>";
-		} else {
-			echo "We have failed to do the correct thing.";
-		}
-				
+				} catch (RuntimeException $e) {
+					echo $e->getMessage() . "<br />";
+				}
+											
+				// !!!--- before going on we have to replace the img and save the pictures ---!!!							
+				try {
+					//safe the text into the db
+					$subject = mysqli_escape_string($mysqli, $subject);
 					$query = "INSERT INTO $table (gap, exercise) VALUES (-1, '$subject')";
 					if($mysqli->query($query) !== TRUE) {
-						echo "There has been a problem!";
+						throw new RuntimeException("Text could not be safed.");
 					}
+
+					//safe the items into the db
 					for($i = 0; $i < $cnt; $i++) {
-						$query = "INSERT INTO $table (gap, solution) VALUES ($i, '{$returns[$i]}')";
+						$return = mysqli_escape_string($mysqli, htmlspecialchars($returns[$i]));
+						$query = "INSERT INTO $table (gap, solution) VALUES ($i, '$return')";
 						if($mysqli->query($query) !== TRUE) {
-							echo "There has been a problem!";
+							throw new RuntimeException("Some items could not be safed.");
 						}
 					}
+
+					if(!isset($distract)) {
+						throw new RuntimeException("There are no distractors in this exercise.");
+					}
+
 					foreach ($distract as $value) {
+						$value = mysqli_escape_string($mysqli, htmlspecialchars($value));
 						$query = "INSERT INTO $table (gap, solution) VALUES (-2, '{$value}')";
 						if($mysqli->query($query) !== true) {
-							echo "There has been a problem!";
+							throw new RuntimeException("Some distractors could not be safed.");
 						}
 					}
-				}
 
-
-				if(!isset($_POST["createlv"])) {
-					echo "<textarea id='summernote'name='editordata'>";
+				} catch (RuntimeException $e) {
+					echo $e->getMessage() . "<br />";
 				}
-
-				if(isset($_POST["build_memory"])) {
-					$data = file_get_contents($_FILES["userFile"]["tmp_name"]);
-					echo htmlspecialchars($data);									
-				}
-
-				if(!isset($_POST["createlv"])) {
-					echo "</textarea>";
-				}
+			
 				
-				//unset($_POST["createlv"]);
+				try {
+					//include the entry into the corresponding space in the index_switch.php file
+					$needle = 'default';
+					$file = 'index_switch.php';
+					$topic = "Leseverstehensübung";
 
-				if(isset($_POST["build_memory"])) {
-					echo "<div id='include'>";
-					echo "<div class='row mt-3'>";
-						echo "<div class='col-md-5 offset-md-1 col-12'>";
-							echo "Incluye el número de distractores que quieres añadir: ";
-						echo "</div>";
-						echo "<div class='col-md-3 col-6'>";													
-							echo "<input type='text' name='distractor' class='form-control' id='distract' placeholder='número de distractores'>";
-						echo "</div>";
-						echo "<div class='col-md-3 col-6'>";
-							echo "<input type='button' class='btn btn-primary' name='distractor' value='Incluir distractores' onclick='distractores();'></input>";
-						echo "</div>";											
-					echo "</div>";
-					echo "</div>";
+					$addArray[] = $tema;
+					$addArray[] = $lang;
+					$addArray[] = $level;
 
-					unset($_POST["build_memory"]);
+					$addFile = new AddFile($file);
+					//call the corresponding method to create the additional case entry
+					$addFile->addArray($addArray, $topic);
+					// divides the array into several parts depending on where the $needle is
+					$addFile->splitArray($needle);
+					// returns true if the array was merged correctly
+					if(($fdbck = $addFile->mergeArrays($addArray)) === true) {
+						$addFile->makeString();
+						if(($fdbck = $addFile->writeFile()) !== true) {
+							throw new RuntimeException($fdbck);
+						}						
+					} else {
+						throw new RuntimeException($fdbck);
+					}
+					// --- END write into index_switch.php file ---
+
+					$included_file = "buildLV.inc.php";
+					$path = "./modules/$lang/$included_file";
+
+					// code to include into the new file
+					$includeCode = "<?php\r\n";
+					$includeCode .= "\t" . '$table = \'' . strtolower($table) . "';\r\n";
+					$includeCode .= "\t" . '$distract = \'' . $_POST['distractores'] . "';\r\n";
+					$includeCode .= "\trequire_once('$path');\r\n";
+					$includeCode .= "?>";
+
+					// creating the new file
+					$handle = fopen("$directory/{$tema}.inc.php", "w+");
+					if(!fwrite($handle, $includeCode)) {
+						throw new RuntimeException("Entry could not be included into the new file.");
+					}
+
+					// show link to the new page
+					echo "<br />Deine Seite ist unter folgender Adresse zu erreichen: ";
+					$msg = sprintf("<a href='%s/%s' target='_blank'>%s/%s</a>", BASE_URL, $tema, BASE_URL, $tema);
+					echo $msg;
+
+				} catch (RuntimeException $e) {
+					echo $e->getMessage() . "<br />";
 				}
 
-
-			if(isset($_POST['createlv'])) {
-
-			// --- include the entry into the corresponding space in the index_switch.php file ---
-			$needle = 'default';
-			$file = 'index_switch.php';
-
-			$addArray[] = $_POST['tema'];
-			$addArray[] = $lang;
-			$addArray[] = $_POST['level'];
-
-			$topic = "Leseverstehensübung";
-
-			//create the array that is going to be included into the $file
-/*			
-			$addArray[] = "\tcase '" . $_POST['tema'] . "':";
-			$addArray[] = "\t\t" . '$page = "' . $lang . '/' . $_POST['level']  . '/' . $_POST['tema'] . '/' . $_POST['tema'] . '.inc.php";';
-			$addArray[] = "\t\t" . '$page_title = "$head_title - Leseverstehensübung - ' . ucfirst($_POST['tema']) . '";';
-			$addArray[] = "\t\t" . 'break;';
-*/				
-
-			$addFile = new AddFile($file);
-			//call the corresponding method to create the additional case entry
-			$addFile->addArray($addArray, $topic);
-			// divides the array into several parts depending on where the $needle is
-			$addFile->splitArray($needle);
-			// returns true if the array was merged correctly
-			if(($fdbck = $addFile->mergeArrays($addArray)) === true) {
-				$addFile->makeString();
-				$addFile->writeFile();
-				echo "<br />New CASE successfully included!!!<br />";
-			} else {
-				echo $fdbck;
-			}
-			// --- END WRITE INTO THE index_switch.php file
-
-			// write the file including the code to build the new page (create new file and fill with info)
-			$path = "./modules/$lang/buildLV.inc.php";
-
-			$includeString = "<?php\r\n";
-			$includeString .= "\t" . '$table = \'' . strtolower($table) . "';\r\n";
-			//$includeString .= "\t" . '$secondURL = ' . "'/$lang/{$_POST['level']}/{$_POST['tema']}';\r\n";
-			$includeString .= "\trequire_once('$path');\r\n";
-			$includeString .= "?>";
-
-			$handle = fopen("modules/$lang/{$_POST['level']}/{$_POST['tema']}/{$_POST['tema']}.inc.php", "w+");
-			if(!fwrite($handle, $includeString)) {
-				echo "<br />Entry could not be included into the new file.<br />";
-			} else {
-				echo "<br />The new entry has been included successfully!!!<br />";
 			}
 
-			echo "<br />Deine Seite unter folgender Adresse zu erreichen:<br />";
-			echo "<a href='" . BASE_URL . "/" . $_POST['tema'] . "' target='_blank'>". BASE_URL . "/" . $_POST['tema'] . "</a><br />";
+			if(!isset($_POST["createlv"])) {
+				echo "<textarea id='summernote' name='editordata'>";
+			}
 
-		}
+			if(isset($_POST["build_memory"])) {
+				$data = file_get_contents($_FILES["userFile"]["tmp_name"]);
+				echo htmlspecialchars($data);									
+			}
 
-		unset($_POST["createlv"]);
+			if(!isset($_POST["createlv"])) {
+				echo "</textarea>";
+			}								
 
-			?>
+			if(isset($_POST["build_memory"])) {
+				$txt = "<div id='include'>";
+				$txt .= "<div class='row mt-3'>";
+				$txt .= "<div class='col-md-5 offset-md-1 col-12'>";
+				$txt .= "Incluye el número de distractores que quieres añadir: ";
+				$txt .= "</div>";
+				$txt .= "<div class='col-md-3 col-6'>";
+				$txt .= "<input type='text' name='distractor' class='form-control' id='distract' placeholder='número de distractores'>";
+				$txt .= "</div>";
+				$txt .= "<div class='col-md-3 col-6'>";
+				$txt .= "<input type='button' class='btn btn-primary' name='distractor' value='Incluir distractores' onclick='distractores();'></input>";
+				$txt .= "</div></div></div>";
+
+				echo $txt;
+				unset($_POST["build_memory"]);
+			}
+
+			unset($_POST["createlv"]);
+
+		?>
 		
-
 		<div class="row mt-3">
 			<div class="col-3 offset-1">Elige un archivo que quieras cargar: </div>
 			<div class="col-6"><input id="userFile" class="form-control" type="file" name="userFile"></div>
@@ -301,10 +303,7 @@
 		});
 
 		function distractores() {
-			
-			alert("Se van a incluir " + document.getElementById("distract").value + " distractores.");
-			count = document.getElementById("distract").value;
-
+			var count = document.getElementById("distract").value;
 			var txt = "<input type='hidden' name='distractores' value='" + count + "'>";
 
 			for(i=0; i < count; i++) {
@@ -321,6 +320,7 @@
 		function enableEditMode() {
 			richTextField.document.designMode = 'On';
 		}
+
 		function execCmd(command, arg = null) {
 			richTextField.document.execCommand(command, false, arg);
 		}	

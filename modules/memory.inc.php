@@ -173,15 +173,7 @@
 
 			//get the topic of the activity
 			$topic = "Memoryspiel";
-
-
-			//create the array that is going to be included into the $file
-/*
-			$addArray[] = "\tcase '" . $_POST['tema'] . "':";
-			$addArray[] = "\t\t" . '$page = "' . $lang . '/' . $_POST['level'] . '/' . $_POST['actividad'] . '/' . $_POST['tema'] . '/' . $_POST['tema'] . '.inc.php";';
-			$addArray[] = "\t\t" . '$page_title = "$head_title - Memoryspiel - ' . ucfirst($_POST['tema']) . '";';
-			$addArray[] = "\t\t" . 'break;';	
-*/			
+		
 
 			$addFile = new AddFile($file);
 			//call the corresponding method to create the additional case entry

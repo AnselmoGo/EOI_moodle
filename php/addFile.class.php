@@ -49,7 +49,7 @@ class AddFile {
 			$this->_addArray[1] .= $addArray[$i] . '/';
 		}
 		$this->_addArray[1] .= $addArray[0] . '/' . $addArray[0] . '.inc.php";';		
-		$this->_addArray[2] = "\t\t" . '$page_title = "$head_title - ' . $topic . ' - ' . ucfirst($addArray[0]) . '";';
+		$this->_addArray[2] = "\t\t" . '$page_title = "' . $topic . ' - ' . ucfirst($addArray[0]) . '";';
 		$this->_addArray[3] = "\t\t" . 'break;';
 	}
 
@@ -80,16 +80,17 @@ class AddFile {
 
 	function writeFile() {
 		if(!$handle = fopen($this->_file, "w+")) {
-			echo "<br />Datei konnte nicht geöffnet werden.";
+			return "File could not be opened.";
 		}
 
 		if(!fwrite($handle, $this->_string)) {
-			echo "Could not write into the file";
+			$msg = "Could not write into the file";
 		} else {
-			echo "File rewritten successfully!";
+			$msg = true;
 		}
 
 		fclose($handle);
+		return $msg;
 	}
 }
 ?>
