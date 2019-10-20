@@ -126,7 +126,7 @@
 					for($i = 0; $i < $cnt; $i++) {
 						$returns[$i] = strstr($subject, "<u>");
 						$returns[$i] = str_replace("<u>", "", $returns[$i]);
-						$returns[$i] = strstr($returns[$i], "</u>", true); 
+						$returns[$i] = trim(strstr($returns[$i], "</u>", true)); 
 
 						$subject = preg_replace("(<u>[A-z ]*</u>)", "-$i- ", $subject, 1);
 					}
