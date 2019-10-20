@@ -112,8 +112,7 @@
 					if(isset($_POST['editordata'])) {
 						str_replace("<u>", "<u>", $_POST['editordata'], $cnt);
 						$purifier = new HTMLPurifier($config_pure);
-						$subject = $purifier->purify($_POST['editordata']);
-						//$subject = $_POST['editordata'];
+						$subject = $purifier->purify($_POST['editordata']);						
 					} else {
 						throw new RuntimeException("You haven't included any text.");
 					}
@@ -212,7 +211,7 @@
 					// code to include into the new file
 					$includeCode = "<?php\r\n";
 					$includeCode .= "\t" . '$table = \'' . strtolower($table) . "';\r\n";
-					$includeCode .= "\t" . '$distract = \'' . $_POST['distractores'] . "';\r\n";
+					$includeCode .= "\t" . '$distract = ' . $_POST['distractores'] . ";\r\n";
 					$includeCode .= "\trequire_once('$path');\r\n";
 					$includeCode .= "?>";
 
