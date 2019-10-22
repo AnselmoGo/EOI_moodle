@@ -245,26 +245,24 @@
 				echo "</textarea>";
 			}								
 
-			if(isset($_POST["build_memory"])) {
-				$txt = "<div id='include'>";
-				$txt .= "<div class='row mt-3'>";
-				$txt .= "<div class='col-md-5 offset-md-1 col-12'>";
-				$txt .= "Incluye el número de distractores que quieres añadir: ";
-				$txt .= "</div>";
-				$txt .= "<div class='col-md-3 col-6'>";
-				$txt .= "<input type='text' name='distractor' class='form-control' id='distract' placeholder='número de distractores'>";
-				$txt .= "</div>";
-				$txt .= "<div class='col-md-3 col-6'>";
-				$txt .= "<input type='button' class='btn btn-primary' name='distractor' value='Incluir distractores' onclick='distractores();'></input>";
-				$txt .= "</div></div></div>";
-
-				echo $txt;
-				unset($_POST["build_memory"]);
-			}
-
+			unset($_POST["build_memory"]);
 			unset($_POST["createlv"]);
 
 		?>
+
+		<div id='include'>
+			<div class='row mt-3'>
+				<div class='col-md-5 offset-md-1 col-12'>
+					Incluye el número de distractores que quieres añadir: 
+				</div>
+				<div class='col-md-3 col-6'>
+					<input type='text' name='distractor' class='form-control' id='distract' placeholder='número de distractores'>
+				</div>
+				<div class='col-md-3 col-6'>
+					<input type='button' class='btn btn-primary' name='distractor' value='Incluir distractores' onclick='distractores();'></input>
+				</div>
+			</div>
+		</div>
 		
 		<div class="row mt-3">
 			<div class="col-3 offset-1">Elige un archivo que quieras cargar: </div>
