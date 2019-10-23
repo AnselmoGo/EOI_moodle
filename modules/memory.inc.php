@@ -20,44 +20,66 @@
 	<hr class="my-5">
 
 	<?php
+		$lang = "al";		// language variable (al = alemán)
+
 		if(isset($_POST['numero']) && $_POST['numero'] !== 0) {
-			$lang = "al";		// language variable (al = alemán)			
-			$table = "{$lang}_{$_POST['level']}_{$_POST['actividad']}_{$_POST['tema']}";
 
-			$query = "CREATE TABLE IF NOT EXISTS `$table` (
-			  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			  `item` varchar(255) NOT NULL DEFAULT '',
-			  `item_l1` varchar(255) NOT NULL DEFAULT '',
-			  `img` varchar(255) NOT NULL DEFAULT '',  
-			  PRIMARY KEY (`id`)
-			)";
+			//this exception has to go on the outside of the if
+			try {
+				if(!filter_var($_POST['numero']),  FILTER_VALIDATE_INT)) {
+					throw new RuntimeException({"$_POST['numero']} is not a valid number. Try introducing a number again.");
+				}
 
-			// create the new table related with the new info introduced by the user
-			if(!$mysqli->query($query)) {
-				echo "Table creation failed: " . $mysqli->errno . " - " . $mysqli->error;
-			} else {
-				echo "Table successfully created!!!";
+				$level = htmlspecialchars($_POST['level']);
+				$actividad = htmlspecialchars($_POST['actividad']);
+				$tema = htmlspecialchars($_POST['tema']);
+
+				$table = "{$lang}_{$level}_{$actividad}_$tema";
+				$directory = "modules/$lang/$level/$actividad/$tema";
+				$img_directory = "$directory/img";
+
+				$query = "CREATE TABLE $table (
+				  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+				  `item` varchar(255) NOT NULL DEFAULT '',
+				  `item_l1` varchar(255) NOT NULL DEFAULT '',
+				  `img` varchar(255) NOT NULL DEFAULT '',  
+				  PRIMARY KEY (`id`)
+				)";
+
+			} catch (RuntimeException $e) {
+				echo $e->getMessage();
 			}
 
-			if (!is_dir("modules/$lang/{$_POST['level']}/{$_POST['actividad']}/{$_POST['tema']}/img")) {
-				// creates directories recursively in order to save the pages & pictures in them
-				if(mkdir("modules/$lang/{$_POST['level']}/{$_POST['actividad']}/{$_POST['tema']}/img", 0777, true)) {
-					echo "<br /><strong>Directory created successfully!!</strong><br />";
+			try {
+
+				if(!$mysqli->query($query)) {
+					$msg = sprintf("Table creation failed. %d - %s<br />", $mysqli->errno, $mysqli->error);
+					throw new RuntimeException($msg);
 				}
-			} else {
-				echo "<br />Directory already exists.<br />";
+
+				if(!is_dir($img_directory)) {
+					// creates directories recursively in order to save the pages & pictures in them
+					if(!mkdir($img_directory, 0777, true)) {							
+						throw new RuntimeException("The directory could not be created.<br />");								
+					}
+				} else {
+					throw new RuntimeException("The directory already exists. Please choose another name.<br />");
+				}
+
+			} catch (RuntimeException $e) {
+				echo $e->getMessage();
 			}
 
 
 			// looping through all the rows included by the user
 			for($i = 1; $i <= $_POST['numero']; $i++) {
-				//$aux_num = $i + 1;
+
 				$item = "item{$i}";
 				$item_l1 = "item{$i}_l1";
 				$itemFile = "{$item}_file";
 
-				$item = $_POST[$item];
-				$item_l1 = $_POST[$item_l1];
+				$item = htmlspecialchars($_POST[$item]);
+				$item_l1 = htmlspecialchars($_POST[$item_l1]);
 			
 				//uploading the user images 
 				try {
@@ -128,16 +150,13 @@
 			    	throw new RuntimeException("<br />Source could not be created.");
 			    }
 
-			    if(!(false === $thumb = imagescale($source, 200))) {
-			    	echo "<br/>Scaled correctly";
+			    if((false === $thumb = imagescale($source, 200))) {
+			    	throw new RuntimeException("File could not be scaled correctly.");
 			    }
 
-			    imagejpeg($thumb, $new_file = sprintf("./modules/$lang/{$_POST['level']}/{$_POST['actividad']}/{$_POST['tema']}/img/%s.%s",			            
-			        		$item,
-			            $ext
-			        ));
-
-	    		echo '<br />File is uploaded successfully.';
+			    if(imagejpeg($thumb, $new_file = sprintf("./$directory/img/%s.%s",	$item, $ext)) === false ) {
+			    	throw new RuntimeException("The file could not be uploaded.");
+			    }	    		
 
 				} catch (RuntimeException $e) {
 
@@ -196,11 +215,10 @@
 
 			$includeString = "<?php\r\n";
 			$includeString .= "\t" . '$table = \'' . strtolower($table) . "';\r\n";
-			//$includeString .= "\t" . '$secondURL = ' . "'/$lang/{$_POST['level']}/{$_POST['actividad']}/{$_POST['tema']}';\r\n";
 			$includeString .= "\trequire_once('$path');\r\n";
 			$includeString .= "?>";
 
-			$handle = fopen("modules/$lang/{$_POST['level']}/{$_POST['actividad']}/{$_POST['tema']}/{$_POST['tema']}.inc.php", "w+");
+			$handle = fopen("$directory/$tema.inc.php", "w+");
 			if(!fwrite($handle, $includeString)) {
 				echo "<br />Entry could not be included into the new file.<br />";
 			} else {
