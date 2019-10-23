@@ -38,7 +38,7 @@
 		</div>
 	</div>
 	
-	<form name="form" id="myForm" method="post" action="<?php BASE_URL . $_SERVER['PHP_SELF'] ?>" enctype="multipart/form-data">
+	<form name="form" class="form-inline line" id="myForm" method="post" action="<?php BASE_URL . $_SERVER['PHP_SELF'] ?>" enctype="multipart/form-data">
 		<div class="row justify-content-center">
 			<div class="my-3 col-10 line_high">							
 				<?php
@@ -46,7 +46,7 @@
 
 					$text_builder = new build_Text($table);
 					$text_builder->set_TbsId($tsbId);
-					$text = $text_builder->get_Text($mysqli);
+					$text = $text_builder->get_Text($mysqli, $forms);
 					echo $text;
 
 					$js_solution = json_encode($text_builder->get_Solution($mysqli));
@@ -55,8 +55,8 @@
 				?>
 			</div>
 		</div>
-		<div class="row center">
-			<div class="mb-3 col-12">				
+		<div class="row">
+			<div class="col-12 center mb-3">
 				<input type="button" name="test_btn" value="Testen" class="btn btn-primary" onclick="check()" />
 				<input type="button" name="losung_btn" value="Lösung" class="btn btn-primary" onclick="loesung()" />
 				<input type="submit" name="wiederholen" value="Übung wiederholen" class="btn btn-primary" />				

@@ -64,7 +64,7 @@ class Build_Text {
 		}
 	}
 
-	function get_Text($mysqli){
+	function get_Text($mysqli, $forms){
 		$result = $mysqli->query("SELECT exercise FROM $this->_table WHERE gap = $this->_num_gap ORDER BY id");
 		while ($row = $result->fetch_assoc()) {
 			$this->_txt .= $row['exercise'];
@@ -72,13 +72,21 @@ class Build_Text {
 		
 		$this->get_Max_gaps($mysqli);
 		
-		$this->build_Select_Option($mysqli);
+		if($forms != "text") {
+			$this->build_Select_Option($mysqli);
+		}		
 
 		for($i = 0; $i <= $this->_num_gaps; $i++) {
 			$select = sprintf("<span name='outer_item%d' id='outer_item%d'>", $i, $i);
-			$select .= sprintf("<select name='item%d' id='item%d' class='form-control-sm'>", $i, $i);
-			$select .= $this->_select_option;
-			$select .= "</select></span>";
+			if($forms == "text") {
+				$select .= sprintf("<input class='form-control form-low' id='item%d' type='text' size='10' maxlength='20'>", $i);
+			} else {				
+				$select .= sprintf("<select name='item%d' id='item%d' class='form-control-sm'>", $i, $i);
+				$select .= $this->_select_option;
+				$select .= "</select>";
+			}
+			$select .= "</span>";
+			
 
 			$this->_txt = str_replace("-$i-", $select, $this->_txt);
 

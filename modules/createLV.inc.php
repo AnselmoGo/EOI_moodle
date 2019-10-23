@@ -163,16 +163,18 @@
 					}
 
 					if(!isset($distract)) {
-						throw new RuntimeException("There are no distractors in this exercise.");
+						//throw new RuntimeException("There are no distractors in this exercise.");
 					}
 
-					foreach ($distract as $value) {
-						$value = mysqli_escape_string($mysqli, htmlspecialchars($value));
-						$query = "INSERT INTO $table (gap, solution) VALUES (-2, '{$value}')";
-						if($mysqli->query($query) !== true) {
-							throw new RuntimeException("Some distractors could not be safed.");
+					if(isset($distract)) {
+						foreach ($distract as $value) {
+							$value = mysqli_escape_string($mysqli, htmlspecialchars($value));
+							$query = "INSERT INTO $table (gap, solution) VALUES (-2, '{$value}')";
+							if($mysqli->query($query) !== true) {
+								throw new RuntimeException("Some distractors could not be safed.");
+							}
 						}
-					}
+					}					
 
 				} catch (RuntimeException $e) {
 					echo $e->getMessage() . "<br />";
@@ -211,7 +213,10 @@
 					// code to include into the new file
 					$includeCode = "<?php\r\n";
 					$includeCode .= "\t" . '$table = \'' . strtolower($table) . "';\r\n";
-					$includeCode .= "\t" . '$distract = ' . $_POST['distractores'] . ";\r\n";
+					if(isset($_POST['distractores'])) {
+						$includeCode .= "\t" . '$distract = ' . $_POST['distractores'] . ";\r\n";
+					}
+					$includeCode .= "\t" . '$forms = \'' . $_POST['forms'] . "';\r\n";
 					$includeCode .= "\trequire_once('$path');\r\n";
 					$includeCode .= "?>";
 
@@ -243,13 +248,15 @@
 
 			if(!isset($_POST["createlv"])) {
 				echo "</textarea>";
-			}								
+			}
 
 			unset($_POST["build_memory"]);
 			unset($_POST["createlv"]);
 
 		?>
 
+		
+<!--
 		<div id='include'>
 			<div class='row mt-3'>
 				<div class='col-md-5 offset-md-1 col-12'>
@@ -263,9 +270,24 @@
 				</div>
 			</div>
 		</div>
+
+	-->
+
+		<div class="row mt-5">
+			<div class="col-md-11 offset-md-1">
+				Decide como va a ser tu ejercicio. Puedes elegir entre las siguientes opciones:
+			</div>
+			<div class="col-md-11 offset-md-2">
+				<input type="radio" name="forms" id="text" value="text" onclick="build_distract(this.value);"> Textbox<br />
+				<input type="radio" name="forms" id="dropdown" value="dropdown" onclick="build_distract(this.value);"> Drop down menu
+			</div>
+		</div>
+
+		<div id="dist">	
+		</div>
 		
 		<div class="row mt-3">
-			<div class="col-3 offset-1">Elige un archivo que quieras cargar: </div>
+			<div class="col-md-3 col-5 offset-1">Elige un archivo que quieras cargar: </div>
 			<div class="col-6"><input id="userFile" class="form-control" type="file" name="userFile"></div>
 		</div>
 		<div class="row justify-content-center">
@@ -299,19 +321,40 @@
 		  ]
 		});
 
+
+		function build_distract(value) {			
+			if(value == "dropdown") {
+				txt = "<div class='row mt-3 mb-5'>";
+				txt += "<div class='col-md-5 offset-md-1 col-12'>";
+				txt += "Incluye el número de distractores que quieres añadir: ";
+				txt += "</div>";
+				txt += "<div class='col-md-3 col-6'>";
+				txt += "<input type='text' name='distractor' class='form-control' id='distract' placeholder='número de distractores'>";
+				txt += "</div>";
+				txt += "<div class='col-md-3 col-6'>";
+				txt += "<input type='button' class='btn btn-primary' name='distractor' value='Incluir distractores' onclick='distractores();'></input>";
+				txt += "</div>";
+				txt += "</div>";
+			} else {
+				txt = "";
+			}
+
+			document.getElementById("dist").innerHTML = txt;
+		}
+
 		function distractores() {
 			var count = document.getElementById("distract").value;
 			var txt = "<input type='hidden' name='distractores' value='" + count + "'>";
 
 			for(i=0; i < count; i++) {
 				txt += "<div class='row my-1'>";
-				txt += "<div class='col-3 offset-1'>";
+				txt += "<div class='col-5 offset-1'>";
 				txt += "<input type='text' name='distractor" + i + "' class='form-control' id='usuario' placeholder='distractor " + (i+1) + "'>";
 				txt += "</div>";
 				txt += "</div>";
 			}
 
-			document.getElementById("include").innerHTML = txt;
+			document.getElementById("dist").innerHTML = txt;
 		}
 
 		function enableEditMode() {
