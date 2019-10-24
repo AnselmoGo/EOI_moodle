@@ -178,23 +178,6 @@
 				} catch (RuntimeException $e) {
 					echo $e->getMessage() . "<br />";
 				}
-
-				// writing the information into de DB
-	/*
-				if(isset($new_file) && $new_file != '') {
-					$new_file = substr($new_file, 2);
-								
-					$query = "INSERT INTO $table (item, item_l1, img) VALUES ('$item', '$item_l1', '$new_file')";
-				} else {
-					$query = "INSERT INTO $table (item, item_l1) VALUES ('$item', '$item_l1')";
-				}
-
-				if($mysqli->query($query) === TRUE) {
-					echo "<br />New record $i created successfully.<br />";
-				} else {
-					echo "<br />New record $i could not be created!!!<br />";
-				}
-	*/
 			}
 
 			try {
@@ -314,10 +297,10 @@
 						Decide cuántos items vas a cargar para jugar el juego:						
 					</div>
 					<div class="col-2">
-						<input type="text" name="numero" class="form-control" placeholder="nº de items" onblur="buildItems(this.value)" required>
+						<input type="text" id="num_items" name="numero" class="form-control" placeholder="nº de items"required>
 					</div>
 					<div class="col-2">
-						<input type="button" class="btn btn-primary" value="Crear rejilla">
+						<input type="button" class="btn btn-primary" value="Crear rejilla" onclick="buildItems(document.getElementById('num_items').value);">
 					</div>
 				</div>
 
@@ -336,35 +319,45 @@
 		}
 	?>
 	<script>
-		function buildItems(item) {
-			alert("Se van a crear " + item + " items.");
+		function buildItems(item) {		
 			
-			var txt = "";
-			var txt2 = "Rellena los siguientes campos. Para cada palabra podrás adjuntar una imagen que elijas. + INSTRUCCIONES!!";
+			let num = parseInt(item);
+			let result = Number.isInteger(num);
+			let not_number = isNaN(item);			
 
-			for(i = 0; i < item; i++) {
-				aux = i + 1;
-				name1 = "item" + aux;
-				name2 = name1 + "_l1";
-				name3 = name1 + "_file";
+			if(result === false || not_number === true) {
+				alert("You introduced \"" + item + "\". This is not a correct value. Please introduce a correct number to start the exercise!");				
+			} else {
+				item = Math.floor(item);
+				alert("Se van a crear " + item + " items.");
+			
+				var txt = "";
+				var txt2 = "Rellena los siguientes campos. Para cada palabra podrás adjuntar una imagen que elijas. + INSTRUCCIONES!!";
 
-				txt += "<div class='row my-1'>";
-				txt += "<div class='col-3'>";
-				txt += "<input type='text' name='" + name1 + "' class='form-control' id='usuario' placeholder='item " + aux + "'>";
-				txt += "</div>";
-				txt += "<div class='col-3'>";
-				txt += "<input type='text' name='" + name2 + "' class='form-control' id='usuario' placeholder='traduccion'>";
-				txt += "</div>";
-				txt += "<div class='col-6'>";
-				txt += "<input type='file' name='" + name3 + "' class='form-control' id='usuario' placeholder='imagen de item " + aux + "'>";
-				txt += "</div>";
-				txt += "</div>";
+				for(i = 0; i < item; i++) {
+					aux = i + 1;
+					name1 = "item" + aux;
+					name2 = name1 + "_l1";
+					name3 = name1 + "_file";
 
+					txt += "<div class='row my-1'>";
+					txt += "<div class='col-3'>";
+					txt += "<input type='text' name='" + name1 + "' class='form-control' id='usuario' placeholder='item " + aux + "'>";
+					txt += "</div>";
+					txt += "<div class='col-3'>";
+					txt += "<input type='text' name='" + name2 + "' class='form-control' id='usuario' placeholder='traduccion'>";
+					txt += "</div>";
+					txt += "<div class='col-6'>";
+					txt += "<input type='file' name='" + name3 + "' class='form-control' id='usuario' placeholder='imagen de item " + aux + "'>";
+					txt += "</div>";
+					txt += "</div>";
+
+				}
+				document.getElementById("include").innerHTML = txt;
+				document.getElementById("inc_text").innerHTML = txt2;
+
+				btn = "<button type='submit' class='btn btn-primary' name='build_memory'>Seite erstellen</button>";
+				document.getElementById("end_button").innerHTML = btn;
 			}
-			document.getElementById("include").innerHTML = txt;
-			document.getElementById("inc_text").innerHTML = txt2;
-
-			btn = "<button type='submit' class='btn btn-primary' name='build_memory'>Seite erstellen</button>";
-			document.getElementById("end_button").innerHTML = btn;
 		}
 	</script>
