@@ -26,8 +26,8 @@
 
 			//this exception has to go on the outside of the if
 			try {
-				if(!filter_var($_POST['numero']),  FILTER_VALIDATE_INT)) {
-					throw new RuntimeException({"$_POST['numero']} is not a valid number. Try introducing a number again.");
+				if(!filter_var($_POST['numero'],  FILTER_VALIDATE_INT)) {
+					throw new RuntimeException("{$_POST['numero']} is not a valid number. Try introducing a number again.");
 				}
 
 				$level = htmlspecialchars($_POST['level']);
@@ -47,7 +47,7 @@
 				)";
 
 			} catch (RuntimeException $e) {
-				echo $e->getMessage();
+				echo $e->getMessage() . "<br />";
 			}
 
 			try {
@@ -67,7 +67,7 @@
 				}
 
 			} catch (RuntimeException $e) {
-				echo $e->getMessage();
+				echo $e->getMessage() . "<br />";
 			}
 
 
@@ -160,11 +160,27 @@
 
 				} catch (RuntimeException $e) {
 
-	    			echo $e->getMessage();
+	    			echo $e->getMessage() . "<br />";
 
 				}
 
+				try {
+					// writing the information into de DB
+					if(isset($new_file) && $new_file != '') {
+						$new_file = substr($new_file, 2);									
+						$query = "INSERT INTO $table (item, item_l1, img) VALUES ('$item', '$item_l1', '$new_file')";
+					} else {
+						$query = "INSERT INTO $table (item, item_l1) VALUES ('$item', '$item_l1')";
+					}
+					if($mysqli->query($query) !== true) {
+						throw new RuntimeException("New record $i could not be creted!!!");
+					}
+				} catch (RuntimeException $e) {
+					echo $e->getMessage() . "<br />";
+				}
+
 				// writing the information into de DB
+	/*
 				if(isset($new_file) && $new_file != '') {
 					$new_file = substr($new_file, 2);
 								
@@ -178,56 +194,59 @@
 				} else {
 					echo "<br />New record $i could not be created!!!<br />";
 				}
+	*/
 			}
 
-			// --- include the entry into the corresponding space in the index_switch.php file ---
-			$needle = 'default';
-			$file = 'index_switch.php';
+			try {
+				// --- include the entry into the corresponding space in the index_switch.php file ---
+				$needle = 'default';
+				$file = 'index_switch.php';
+				$topic = "Memoryspiel";
 
-			//include all the necessary variables & POSTs into an array to create the addArray
-			$addArray[] = $_POST['tema'];
-			$addArray[] = $lang;
-			$addArray[] = $_POST['level'];
-			$addArray[] = $_POST['actividad'];
+				//include all the necessary variables & POSTs into an array to create the addArray
+				$addArray[] = $tema;
+				$addArray[] = $lang;
+				$addArray[] = $level;
+				$addArray[] = $actividad;
 
-			//get the topic of the activity
-			$topic = "Memoryspiel";
-		
+				$addFile = new AddFile($file);
+				//call the corresponding method to create the additional case entry
+				$addFile->addArray($addArray, $topic);
+				// divides the array into several parts depending on where the $needle is
+				$addFile->splitArray($needle);
+				// returns true if the array was merged correctly
+				if(($fdbck = $addFile->mergeArrays($addArray)) === true) {
+					$addFile->makeString();
+					if(($fdbck = $addFile->writeFile()) !== true) {
+						throw new RuntimeException($fdbck);
+					}						
+				} else {
+					throw new RuntimeException($fdbck);
+				}
+				// --- END WRITE INTO THE index_switch.php file
 
-			$addFile = new AddFile($file);
-			//call the corresponding method to create the additional case entry
-			$addFile->addArray($addArray, $topic);
-			// divides the array into several parts depending on where the $needle is
-			$addFile->splitArray($needle);
-			// returns true if the array was merged correctly
-			//if(($fdbck = $addFile->mergeArrays($addArray)) === true) {
-			if(($fdbck = $addFile->mergeArrays()) === true) {
-				$addFile->makeString();
-				$addFile->writeFile();
-				echo "<br />New CASE successfully included!!!<br />";
-			} else {
-				echo $fdbck;
+				$included_file = "buildMemory.inc.php";
+				$path = "./modules/$lang/$included_file";
+
+				//code to be included into the new file
+				$includeCode = "<?php\r\n";
+				$includeCode .= "\t" . '$table = \'' . strtolower($table) . "';\r\n";
+				$includeCode .= "\trequire_once('$path');\r\n";
+				$includeCode .= "?>";
+				// creating the new file
+				$handle = fopen("$directory/$tema.inc.php", "w+");
+				if(!fwrite($handle, $includeCode)) {
+					throw new RuntimeException("Entry could not be included into the new file.");
+				} 
+
+				echo "<br />Deine Seite ist unter folgender Adresse zu erreichen:<br />";
+				$msg = sprintf("<a href='%s/%s' target='_blank'>%s/%s</a>", BASE_URL, $tema, BASE_URL, $tema);
+				echo $msg;
+
+			} catch (RuntimeException $e) {
+				echo $e->getMessage() . "<br />";
 			}
-			// --- END WRITE INTO THE index_switch.php file
-
-			// write the file including the code to build the new page (create new file and fill with info)
-			$path = "./modules/$lang/buildMemory.inc.php";
-
-			$includeString = "<?php\r\n";
-			$includeString .= "\t" . '$table = \'' . strtolower($table) . "';\r\n";
-			$includeString .= "\trequire_once('$path');\r\n";
-			$includeString .= "?>";
-
-			$handle = fopen("$directory/$tema.inc.php", "w+");
-			if(!fwrite($handle, $includeString)) {
-				echo "<br />Entry could not be included into the new file.<br />";
-			} else {
-				echo "<br />The new entry has been included successfully!!!<br />";
-			}
-
-			echo "<br />Deine Seite ist unter folgender Adresse zu erreichen:<br />";
-			echo "<a href='" . BASE_URL . "/" . $_POST['tema'] . "' target='_blank'>". BASE_URL . "/" . $_POST['tema'] . "</a><br />";
-			
+						
 		} else {		
 	?>
 
@@ -247,8 +266,8 @@
 								$result = $mysqli->query("SELECT levels FROM $table");
 								while($row = $result->fetch_assoc()) {
 									$level = str_replace(".", "", $row['levels']);
-									//echo "<option value='" . $row['levels'] . "'>{$row['levels']}</option>";
-									echo "<option value='" . $level . "'>{$row['levels']}</option>";
+									$stg = sprintf("<option value='%s'>%s</option>", $level, $row['levels']);
+									echo $stg;
 								}
 							?>
 						</select>
@@ -268,7 +287,8 @@
 
 										$result = $mysqli->query("SELECT activity_name FROM $table");
 										while($row = $result->fetch_assoc()) {
-											echo "<option value='" . $row['activity_name'] . "'>{$row['activity_name']}</option>";
+											$stg = sprintf("<option value='%s'>%s</option>", $row['activity_name'], $row['activity_name']);
+											echo $stg;
 										}										
 									?>
 								</select>
@@ -302,7 +322,7 @@
 				</div>
 
 				<div class="row my-4">
-					<div id="inc_text" class="col-10"></div>					
+					<div id="inc_text" class="col-12"></div>					
 				</div>
 				<div class="row my-2">
 					<div id="include" class="col-10"></div>
@@ -317,7 +337,7 @@
 	?>
 	<script>
 		function buildItems(item) {
-			alert("Seguro que quieres crear " + item + " items?");
+			alert("Se van a crear " + item + " items.");
 			
 			var txt = "";
 			var txt2 = "Rellena los siguientes campos. Para cada palabra podrás adjuntar una imagen que elijas. + INSTRUCCIONES!!";
