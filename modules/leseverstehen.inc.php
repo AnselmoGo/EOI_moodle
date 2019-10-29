@@ -32,14 +32,15 @@
 				<?php
 					$table = 'lv_select';
 					$tsbId = 1;
+					$forms = "dropdown";
 
 					$text_builder = new build_Text($table);
 					$text_builder->set_TbsId($tsbId);
-					$text = $text_builder->get_Text($mysqli);
+					$text = $text_builder->get_Text($mysqli, $forms);
 					echo $text;
 
 					$js_solution = json_encode($text_builder->get_Solution($mysqli));
-					$js_rows = json_encode($text_builder->get_Rows());
+					$js_rows = json_encode($text_builder->get_Gaps());
 					echo "<script>var solution = $js_solution, rows = $js_rows;</script>";
 				?>
 			</div>

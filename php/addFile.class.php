@@ -8,8 +8,7 @@
 **							$_splitArray	-> array into which the $_fArray is split depending on the $needle given in 
 **															 splitArray()
 **							$_string	-> string into which the final array is converted
-** Methods:	splitArray()	-> splits the array created from the file depending on the $needle given (not more than 
-**													 2 arrays)
+** Methods:			splitArray()	-> splits the array created from the file depending on the $needle given (not more than 2 arrays)
 **					addArray()		-> constructs the new case that is going to be included into the original file
 **					mergeArrays()	-> introduces the new array in between the 2 splitArray parts
 **					makeString()	-> converts the final array into a string

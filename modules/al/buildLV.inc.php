@@ -46,11 +46,13 @@
 
 					$text_builder = new build_Text($table);
 					$text_builder->set_TbsId($tsbId);
+					// $forms = variable that is built in the "parent"-file that contructs the exercise
+					// when creating the file in createLV.inc.php 
 					$text = $text_builder->get_Text($mysqli, $forms);
 					echo $text;
 
 					$js_solution = json_encode($text_builder->get_Solution($mysqli));
-					$js_rows = json_encode($text_builder->get_Rows());
+					$js_rows = json_encode($text_builder->get_Gaps());
 					echo "<script>var solution = $js_solution, rows = $js_rows;</script>";
 				?>
 			</div>
