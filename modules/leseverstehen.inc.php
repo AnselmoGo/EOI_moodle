@@ -37,6 +37,7 @@
 					$text_builder = new build_Text($table);
 					$text_builder->set_TbsId($tsbId);
 					$text = $text_builder->get_Text($mysqli, $forms);
+					$text = $text_builder->get_Images($mysqli);					
 					echo $text;
 
 					$js_solution = json_encode($text_builder->get_Solution($mysqli));

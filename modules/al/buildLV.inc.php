@@ -49,6 +49,7 @@
 					// $forms = variable that is built in the "parent"-file that contructs the exercise
 					// when creating the file in createLV.inc.php 
 					$text = $text_builder->get_Text($mysqli, $forms);
+					$text = $text_builder->get_Images($mysqli);
 					echo $text;
 
 					$js_solution = json_encode($text_builder->get_Solution($mysqli));

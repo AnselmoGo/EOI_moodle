@@ -13,9 +13,9 @@
 **
 **	Methods:	set_TbsId()		-> sets the "TextbausteinID"
 **				private get_Max_gap()	-> gets the maximum number of gaps in the exercise
-**				private get_Images()	-> gets an image from the db and places it in the corresponding position in the text
 **				private build_Select_Option()	-> builds the options for the select in the text
 **				private build_Gap()		-> builds the gap as a text input or a dropdown menu (select)
+**				get_Images()	-> gets an image from the db and places it in the corresponding position in the text
 **				get_Text()		-> creates the text from the db, replaces the numbers with gaps
 **				get_Solution()	-> extracts the solutions (array) from the db 			
 **				get_Gaps()		-> gets and returns the number of gaps in the exercise	
@@ -48,23 +48,6 @@ class Build_Text {
 		$this->_num_gaps = $row['MAX(gap)'] + 1;   //incremented because starts with 0, we are counting gaps
 	}
 
-	private function get_Images($mysqli, $num) {
-		$result = $mysqli->query("SELECT img FROM $this->_table WHERE textbausteinID = $this->_tbsId AND imgID = $num");
-		$row = $result->fetch_assoc();
-
-		$img = "<img class='$this->_floating $this->_padding' src='{$row['img']}' alt='img$num'>";
-		
-		if($this->_padding == "pad_right") {
-			$this->_padding = "pad_left";
-			$this->_floating = "float-right";
-		} else {
-			$this->_padding = "pad_right";
-			$this->_floating = "float-left";
-		}
-
-		$this->_txt = str_replace("#$num#", $img, $this->_txt);
-	}
-
 	private function build_Select_Option($mysqli) {		
 		$this->_select_option .= "<option>- ??? -</option>";
 
@@ -80,7 +63,7 @@ class Build_Text {
 		}
 	}
 
-	private function build_Gap($mysqli, $forms) {
+	private function build_Gap($forms) {
 
 		for($i = 0; $i < $this->_num_gaps; $i++) {
 			$select = sprintf("<span name='outer_item%d' id='outer_item%d'>", $i, $i);
@@ -94,11 +77,33 @@ class Build_Text {
 			$select .= "</span>";
 			
 			$this->_txt = str_replace("-$i-", $select, $this->_txt);
-
-			if(strstr($this->_txt, "#$i#") !== false) {
-				$this->get_Images($mysqli, $i);
-			}
 		}
+	}
+
+	function get_Images($mysqli) {
+		$result = $mysqli->query("SELECT MAX(imgID) FROM $this->_table");
+		$row = $result->fetch_assoc();
+
+		$num_img = $row['MAX(imgID)'];
+
+		for($i = 1; $i <= $num_img; $i++) {
+			$result = $mysqli->query("SELECT img FROM $this->_table WHERE textbausteinID = $this->_tbsId AND imgID = $i");
+			$row = $result->fetch_assoc();
+
+			$img = "<img class='$this->_floating $this->_padding' src='{$row['img']}' alt='img$i'>";
+			
+			if($this->_padding == "pad_right") {
+				$this->_padding = "pad_left";
+				$this->_floating = "float-right";
+			} else {
+				$this->_padding = "pad_right";
+				$this->_floating = "float-left";
+			}
+
+			$this->_txt = str_replace("#$i#", $img, $this->_txt);
+		}
+
+		return $this->_txt;
 	}
 
 	function get_Text($mysqli, $forms){
@@ -113,7 +118,7 @@ class Build_Text {
 			$this->build_Select_Option($mysqli);
 		}
 
-		$this->build_Gap($mysqli, $forms);
+		$this->build_Gap($forms);
 
 		return $this->_txt;
 	}
