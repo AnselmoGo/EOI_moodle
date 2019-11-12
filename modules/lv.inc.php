@@ -33,7 +33,7 @@
 				}
 
 
-				$result = $mysqli->query("SELECT id,texto FROM $table WHERE levelID = '$levelID' AND pid = -1 AND tipo_ejercicio = '$ex_type'");
+				$result = $mysqli->query("SELECT id,text FROM $table WHERE levelID = '$levelID' AND pid = -1 AND tipo_ejercicio = '$ex_type'");
 				if($row = $result->fetch_assoc()) {
 					echo $row['texto'];
 				} else {

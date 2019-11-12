@@ -255,24 +255,6 @@
 
 		?>
 
-		
-<!--
-		<div id='include'>
-			<div class='row mt-3'>
-				<div class='col-md-5 offset-md-1 col-12'>
-					Incluye el número de distractores que quieres añadir: 
-				</div>
-				<div class='col-md-3 col-6'>
-					<input type='text' name='distractor' class='form-control' id='distract' placeholder='número de distractores'>
-				</div>
-				<div class='col-md-3 col-6'>
-					<input type='button' class='btn btn-primary' name='distractor' value='Incluir distractores' onclick='distractores();'></input>
-				</div>
-			</div>
-		</div>
-
-	-->
-
 		<div class="row mt-5">
 			<div class="col-md-11 offset-md-1">
 				Decide como va a ser tu ejercicio. Puedes elegir entre las siguientes opciones:
