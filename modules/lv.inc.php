@@ -35,7 +35,7 @@
 
 				$result = $mysqli->query("SELECT id,text FROM $table WHERE levelID = '$levelID' AND pid = -1 AND tipo_ejercicio = '$ex_type'");
 				if($row = $result->fetch_assoc()) {
-					echo $row['texto'];
+					echo $row['text'];
 				} else {
 					echo "There is not text for your level.";					
 				}
